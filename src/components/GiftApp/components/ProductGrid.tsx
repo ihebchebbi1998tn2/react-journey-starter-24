@@ -22,29 +22,18 @@ const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
     );
   }
 
-  const handleInteraction = (
-    event: React.MouseEvent<HTMLDivElement> | React.DragEvent<HTMLDivElement>,
-    product: Product
-  ) => {
+  const handleInteraction = (event: React.DragEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>, product: Product) => {
     if (isMobile && event.type === 'click') {
       // For mobile, simulate drag start on click
-      const simulatedDragEvent = new DragEvent('dragstart', {
-        bubbles: true,
-        cancelable: true,
-      });
-      
-      // Create a custom dataTransfer object
-      Object.defineProperty(simulatedDragEvent, 'dataTransfer', {
-        value: {
+      const simulatedDragEvent = {
+        ...event,
+        dataTransfer: {
           setData: (type: string, value: string) => {
-            // Store the product data in a way that can be retrieved by the drop handler
-            (window as any).__dragData = { type, value };
-          },
-          getData: (type: string) => {
-            return (window as any).__dragData?.value || '';
+            // Simulate dataTransfer.setData
+            console.log('Setting data:', type, value);
           }
         }
-      });
+      } as React.DragEvent<HTMLDivElement>;
       
       onDragStart(simulatedDragEvent, product);
     } else if (!isMobile && event.type === 'dragstart') {
@@ -65,9 +54,7 @@ const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className={`bg-white rounded-lg shadow-sm p-4 ${
-            isMobile ? 'cursor-pointer active:scale-95' : 'cursor-grab active:cursor-grabbing'
-          } border border-gray-100/50 hover:shadow-md transition-all`}
+          className={`bg-white rounded-lg shadow-sm p-4 ${isMobile ? 'cursor-pointer active:scale-95' : 'cursor-grab active:cursor-grabbing'} border border-gray-100/50 hover:shadow-md transition-all`}
         >
           <div className="relative">
             {!isMobile && <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />}
