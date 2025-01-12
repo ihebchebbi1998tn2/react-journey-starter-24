@@ -27,26 +27,33 @@ const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
     product: Product
   ) => {
     if (isMobile && event.type === 'click') {
-      // For mobile, simulate drag start on click
-      const simulatedDragEvent = new DragEvent('dragstart', {
-        bubbles: true,
-        cancelable: true,
-      });
-      
-      // Create a custom dataTransfer object
-      Object.defineProperty(simulatedDragEvent, 'dataTransfer', {
-        value: {
+      // For mobile, create a properly typed synthetic event
+      const syntheticEvent = {
+        ...event,
+        type: 'dragstart',
+        dataTransfer: {
           setData: (type: string, value: string) => {
-            // Store the product data in a way that can be retrieved by the drop handler
             (window as any).__dragData = { type, value };
           },
           getData: (type: string) => {
             return (window as any).__dragData?.value || '';
-          }
-        }
-      });
-      
-      onDragStart(simulatedDragEvent, product);
+          },
+          items: [] as any[],
+          types: [] as string[],
+          clearData: () => {},
+          setDragImage: () => {},
+        },
+        preventDefault: event.preventDefault.bind(event),
+        stopPropagation: event.stopPropagation.bind(event),
+        nativeEvent: event.nativeEvent,
+        isDefaultPrevented: event.isDefaultPrevented.bind(event),
+        isPropagationStopped: event.isPropagationStopped.bind(event),
+        persist: event.persist?.bind(event) || (() => {}),
+        currentTarget: event.currentTarget,
+        target: event.target,
+      } as React.DragEvent<HTMLDivElement>;
+
+      onDragStart(syntheticEvent, product);
     } else if (!isMobile && event.type === 'dragstart') {
       // Normal drag behavior for desktop
       onDragStart(event as React.DragEvent<HTMLDivElement>, product);
