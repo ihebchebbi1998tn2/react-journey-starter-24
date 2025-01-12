@@ -15,7 +15,11 @@ const MainNavbarMenusProducts = () => {
         <MondeFioriSection />
       </NavMenuItem>
 
-      <NavMenuItem title="L'univers Cadeaux" image="/Articles/2.png">
+      <NavMenuItem 
+        title="L'univers Cadeaux" 
+        image="/Articles/2.png"
+        href="/univers-cadeaux"
+      >
         <GiftUniverseMenu />
       </NavMenuItem>
 

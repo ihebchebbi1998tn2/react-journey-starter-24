@@ -15,11 +15,13 @@ const MainNavbarMenus = () => {
         <MondeFioriSection />
       </NavMenuItem>
 
-      <Link to="/univers-cadeaux">
-        <NavMenuItem title="L'univers Cadeaux" image="/Menu/Universcadeau.png">
-          <GiftUniverseMenu />
-        </NavMenuItem>
-      </Link>
+      <NavMenuItem 
+        title="L'univers Cadeaux" 
+        image="/Menu/Universcadeau.png"
+        href="/univers-cadeaux"
+      >
+        <GiftUniverseMenu />
+      </NavMenuItem>
 
       <NavMenuItem title="Le prêt à porter" image="/Menu/lepresaporte.png">
         <PretAPorterSection />
