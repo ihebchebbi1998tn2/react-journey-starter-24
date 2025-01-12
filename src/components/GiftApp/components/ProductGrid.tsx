@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Product } from '@/types/product';
 import { GripVertical } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProductGridProps {
   products: Product[];
@@ -9,6 +10,8 @@ interface ProductGridProps {
 }
 
 const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
+  const isMobile = useIsMobile();
+
   if (products.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -19,8 +22,24 @@ const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
     );
   }
 
-  const handleDragStart = (event: React.DragEvent<HTMLDivElement>, product: Product) => {
-    onDragStart(event, product);
+  const handleInteraction = (event: React.DragEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>, product: Product) => {
+    if (isMobile && event.type === 'click') {
+      // For mobile, simulate drag start on click
+      const simulatedDragEvent = {
+        ...event,
+        dataTransfer: {
+          setData: (type: string, value: string) => {
+            // Simulate dataTransfer.setData
+            console.log('Setting data:', type, value);
+          }
+        }
+      } as React.DragEvent<HTMLDivElement>;
+      
+      onDragStart(simulatedDragEvent, product);
+    } else if (!isMobile && event.type === 'dragstart') {
+      // Normal drag behavior for desktop
+      onDragStart(event as React.DragEvent<HTMLDivElement>, product);
+    }
   };
 
   return (
@@ -28,16 +47,17 @@ const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
       {products.map((product) => (
         <motion.div
           key={product.id}
-          draggable
-          onDragStart={(e) => handleDragStart(e, product)}
+          draggable={!isMobile}
+          onClick={(e) => isMobile && handleInteraction(e, product)}
+          onDragStart={(e) => !isMobile && handleInteraction(e, product)}
           data-product-type={product.itemgroup_product}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="bg-white rounded-lg shadow-sm p-4 cursor-grab active:cursor-grabbing border border-gray-100/50 hover:shadow-md transition-all"
+          className={`bg-white rounded-lg shadow-sm p-4 ${isMobile ? 'cursor-pointer active:scale-95' : 'cursor-grab active:cursor-grabbing'} border border-gray-100/50 hover:shadow-md transition-all`}
         >
           <div className="relative">
-            <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />
+            {!isMobile && <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />}
             <img
               src={product.image}
               alt={product.name}
