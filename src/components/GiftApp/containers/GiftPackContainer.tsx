@@ -70,13 +70,17 @@ const GiftPackContainer = ({
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    e.currentTarget.style.borderColor = '#700100';
-    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+    if (!item) {
+      e.currentTarget.style.borderColor = '#700100';
+      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.currentTarget.style.borderColor = '';
-    e.currentTarget.style.backgroundColor = item ? 'rgba(255, 255, 255, 0.95)' : '';
+    if (!item) {
+      e.currentTarget.style.borderColor = '';
+      e.currentTarget.style.backgroundColor = '';
+    }
   };
 
   const handleItemClick = () => {
@@ -85,9 +89,21 @@ const GiftPackContainer = ({
     }
   };
 
+  // Reset styles when component unmounts or when item is removed
+  React.useEffect(() => {
+    return () => {
+      const container = document.querySelector(`[data-container-index="${containerIndex}"]`);
+      if (container) {
+        (container as HTMLElement).style.borderColor = '';
+        (container as HTMLElement).style.backgroundColor = '';
+      }
+    };
+  }, [containerIndex, item]);
+
   return (
     <>
       <div
+        data-container-index={containerIndex}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -104,6 +120,7 @@ const GiftPackContainer = ({
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
               className="relative w-full h-full group"
             >
               <div className="absolute inset-0 flex items-center justify-center">
@@ -123,7 +140,15 @@ const GiftPackContainer = ({
               </div>
               {onRemoveItem && (
                 <button
-                  onClick={() => onRemoveItem(containerIndex)}
+                  onClick={() => {
+                    onRemoveItem(containerIndex);
+                    // Reset styles immediately when item is removed
+                    const container = document.querySelector(`[data-container-index="${containerIndex}"]`);
+                    if (container) {
+                      (container as HTMLElement).style.borderColor = '';
+                      (container as HTMLElement).style.backgroundColor = '';
+                    }
+                  }}
                   className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 transform hover:scale-110 shadow-lg z-10"
                   aria-label="Remove item"
                 >
