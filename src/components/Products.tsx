@@ -82,7 +82,7 @@ const Products = () => {
           onClick={scrollPrev}
           disabled={!prevEnabled}
         >
-          <div>{'<'}</div>
+          <div className="arrow-content">{'<'}</div>
         </button>
         <button
           className={`embla__button embla__button--next ${
@@ -91,7 +91,7 @@ const Products = () => {
           onClick={scrollNext}
           disabled={!nextEnabled}
         >
-          <div>{'>'}</div>
+          <div className="arrow-content">{'>'}</div>
         </button>
       </div>
       <style>
@@ -158,7 +158,7 @@ const Products = () => {
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 1.5rem;
+          font-size: 2.5rem;
           font-weight: bold;
           cursor: pointer;
           z-index: 10;
@@ -170,12 +170,14 @@ const Products = () => {
         .embla__button--next {
           right: 0;
         }
-        .embla__button div {
+        .embla__button .arrow-content {
           display: flex;
           justify-content: center;
           align-items: center;
           height: 100%;
           width: 100%;
+          font-size: 2rem;
+          line-height: 1;
         }
         .embla__button:hover {
           background-color: #000;
@@ -190,7 +192,9 @@ const Products = () => {
           .embla__button {
             width: 30px;
             height: 30px;
-            font-size: 1.2rem;
+          }
+          .embla__button .arrow-content {
+            font-size: 1.8rem;
           }
           .embla__button--prev {
             left: 5px;
@@ -205,7 +209,9 @@ const Products = () => {
           .embla__button {
             width: 25px;
             height: 25px;
-            font-size: 1rem;
+          }
+          .embla__button .arrow-content {
+            font-size: 1.5rem;
           }
           .embla__button--prev {
             left: 2px;
