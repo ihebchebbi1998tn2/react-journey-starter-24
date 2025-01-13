@@ -153,12 +153,12 @@ const Products = () => {
           color: white;
           border: none;
           border-radius: 50%;
-          width: 35px;
-          height: 35px;
+          width: 42px;
+          height: 42px;
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 2.5rem;
+          font-size: 3rem;
           font-weight: bold;
           cursor: pointer;
           z-index: 10;
@@ -176,7 +176,7 @@ const Products = () => {
           align-items: center;
           height: 100%;
           width: 100%;
-          font-size: 2rem;
+          font-size: 2.4rem;
           line-height: 1;
         }
         .embla__button:hover {
@@ -190,11 +190,11 @@ const Products = () => {
         /* Mobile-specific styles */
         @media (max-width: 768px) {
           .embla__button {
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
           }
           .embla__button .arrow-content {
-            font-size: 1.8rem;
+            font-size: 2.16rem;
           }
           .embla__button--prev {
             left: 5px;
@@ -207,11 +207,11 @@ const Products = () => {
         /* Extra small screens */
         @media (max-width: 480px) {
           .embla__button {
-            width: 25px;
-            height: 25px;
+            width: 30px;
+            height: 30px;
           }
           .embla__button .arrow-content {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
           }
           .embla__button--prev {
             left: 2px;
@@ -227,3 +227,4 @@ const Products = () => {
 };
 
 export default Products;
+
