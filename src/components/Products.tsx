@@ -60,7 +60,7 @@ const Products = () => {
       <div className="products-container">
         <h1 className="products-title">Nouveauté</h1>
         <Categories />
-        <div className="embla" ref={emblaRef}>
+        <div className="embla relative" ref={emblaRef}>
           <div className="embla__container">
             {isLoading
               ? Array.from({ length: 6 }).map((_, index) => (
@@ -82,9 +82,7 @@ const Products = () => {
           onClick={scrollPrev}
           disabled={!prevEnabled}
         >
-          <div>
-         {'<'}
-         </div>
+          <div>{'<'}</div>
         </button>
         <button
           className={`embla__button embla__button--next ${
@@ -93,9 +91,7 @@ const Products = () => {
           onClick={scrollNext}
           disabled={!nextEnabled}
         >
-          <div>
-           {'>'}
-           </div>
+          <div>{'>'}</div>
         </button>
       </div>
       <style>
@@ -110,6 +106,7 @@ const Products = () => {
           margin: 0 auto;
           padding: 2rem 1rem;
           max-width: 1200px;
+          position: relative;
         }
         .products-title {
           font-size: 2rem;
@@ -151,7 +148,7 @@ const Products = () => {
         .embla__button {
           position: absolute;
           top: 50%;
-          transform: translate(-50%, -40%);
+          transform: translateY(-50%);
           background-color: #700100;
           color: white;
           border: none;
@@ -161,29 +158,61 @@ const Products = () => {
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 3.5rem;
+          font-size: 1.5rem;
           font-weight: bold;
           cursor: pointer;
           z-index: 10;
           transition: background-color 0.3s ease;
         }
-        .embla__button--prev { left: 2rem; }
+        .embla__button--prev {
+          left: 0;
+        }
+        .embla__button--next {
+          right: 0;
+        }
         .embla__button div {
           display: flex;
           justify-content: center;
           align-items: center;
-          position: absolute;
-          font-size: 3.25rem;
-          margin: 10px;
-          top: 4px;
-          right: 3px;
-          bottom: 100px;
+          height: 100%;
+          width: 100%;
         }
-        .embla__button--next { right: 2rem; }
-        .embla__button:hover { background-color: #000; }
+        .embla__button:hover {
+          background-color: #000;
+        }
         .embla__button--disabled {
           background-color: #d1d5db;
           cursor: not-allowed;
+        }
+
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+          .embla__button {
+            width: 30px;
+            height: 30px;
+            font-size: 1.2rem;
+          }
+          .embla__button--prev {
+            left: 5px;
+          }
+          .embla__button--next {
+            right: 5px;
+          }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+          .embla__button {
+            width: 25px;
+            height: 25px;
+            font-size: 1rem;
+          }
+          .embla__button--prev {
+            left: 2px;
+          }
+          .embla__button--next {
+            right: 2px;
+          }
         }
         `}
       </style>
