@@ -17,7 +17,7 @@ const ProductDetailLayout = ({ children, onBack }: ProductDetailLayoutProps) => 
       <div className="hidden lg:block">
         <MainNavbarProductDetails />
       </div>
-      <main className="flex-grow">
+      <main className="flex-grow lg:mt-[1%] mt-[-13%]">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <button
             onClick={onBack}

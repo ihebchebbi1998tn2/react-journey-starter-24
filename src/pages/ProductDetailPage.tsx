@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllProducts } from '@/services/productsApi';
@@ -6,10 +6,13 @@ import { motion } from 'framer-motion';
 import RelatedProducts from '@/components/product-detail/RelatedProducts';
 import ProductDetailLayout from '@/components/product-detail/ProductDetailLayout';
 import ProductDetailContainer from '@/components/product-detail/ProductDetailContainer';
+import CheckoutConfirmationModal from '@/components/modals/CheckoutConfirmationModal';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [addedProductName, setAddedProductName] = useState('');
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['products'],
@@ -39,6 +42,11 @@ const ProductDetailPage = () => {
     );
   }
 
+  const handleProductAdded = (productName: string) => {
+    setAddedProductName(productName);
+    setShowCheckoutModal(true);
+  };
+
   // Get related products if any are specified
   const relatedProductIds = product.relatedProducts
     ? product.relatedProducts.split(',').map(Number)
@@ -49,7 +57,10 @@ const ProductDetailPage = () => {
 
   return (
     <ProductDetailLayout onBack={() => navigate(-1)}>
-      <ProductDetailContainer product={product} />
+      <ProductDetailContainer 
+        product={product} 
+        onProductAdded={handleProductAdded}
+      />
       
       {relatedProductsList.length > 0 && (
         <motion.section 
@@ -64,6 +75,12 @@ const ProductDetailPage = () => {
           <RelatedProducts products={relatedProductsList} />
         </motion.section>
       )}
+
+      <CheckoutConfirmationModal
+        isOpen={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        productName={addedProductName}
+      />
     </ProductDetailLayout>
   );
 };

@@ -13,7 +13,9 @@ const SurMesurePage = () => {
       <div className="hidden lg:block">
         <MainNavbar />
       </div>
-      <BeltsSection />
+      <div className="lg:mt-[0.5%] mt-[-15%]">
+    <BeltsSection />
+    </div>
       <Footer />
     </div>
   );

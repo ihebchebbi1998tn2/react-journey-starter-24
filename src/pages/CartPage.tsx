@@ -88,7 +88,7 @@ const CartPage = () => {
       <TopNavbar />
       <div className="flex-grow">
         <BrandNavbarSection />
-        <div className="container mx-auto px-4 py-2 space-y-4 mt-4">
+        <div className="container mx-auto px-4 py-2 space-y-4 mt-4 lg:mt-[-4%] mt-[-13%]">
           <BackButton onClick={() => navigate('/')} />
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}

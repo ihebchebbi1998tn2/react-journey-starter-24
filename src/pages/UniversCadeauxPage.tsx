@@ -48,6 +48,8 @@ const UniversCadeauxPage = () => {
       <div className="hidden lg:block">
         <MainNavbar />
       </div>
+
+      <div className="lg:mt-[0.5%] mt-[-15%]">
       <div className="flex-grow bg-[#F9FAFB]">
         <div className="container mx-auto px-4 py-4">
           <button
@@ -89,6 +91,9 @@ const UniversCadeauxPage = () => {
         {!showGiftCollection && <UniversCadeauxHero onToggleView={handleToggleView} />}
         {showGiftCollection && <GiftCollectionPackPage />}
       </div>
+      </div>
+
+
       <Footer />
     </div>
   );
