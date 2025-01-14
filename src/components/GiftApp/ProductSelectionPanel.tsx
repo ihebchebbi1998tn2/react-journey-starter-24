@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import AddItemDialog from './dialogs/AddItemDialog';
 import { playTickSound } from '@/utils/audio';
 import { toast } from '@/hooks/use-toast';
+import { getAvailableCategories } from '@/utils/categoryUtils';
 
 interface ProductSelectionPanelProps {
   onItemDrop: (item: Product, size: string, personalization: string) => void;
@@ -34,77 +35,12 @@ const ProductSelectionPanel = ({
   const itemsPerPage = 4;
   const isMobile = useIsMobile();
 
-  const getAvailableCategories = () => {
-    if (packType === 'Pack Prestige') {
-      const chemiseCount = selectedItems.filter(item => item.itemgroup_product === 'chemises').length;
-      const beltCount = selectedItems.filter(item => item.itemgroup_product === 'ceintures').length;
-      const cravateCount = selectedItems.filter(item => item.itemgroup_product === 'cravates').length;
-
-      console.log('Current counts - Chemises:', chemiseCount, 'Belts:', beltCount, 'Cravates:', cravateCount);
-
-      // First slot must be chemise
-      if (chemiseCount === 0) {
-        return [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }];
-      }
-      // Second slot must be belt after chemise is selected
-      if (chemiseCount === 1 && beltCount === 0) {
-        return [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }];
-      }
-      // Third slot must be cravate after chemise and belt are selected
-      if (chemiseCount === 1 && beltCount === 1 && cravateCount === 0) {
-        return [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }];
-      }
-      return [];
-    }
-
-    const categories = {
-      'Pack Prestige': [
-        [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }],
-        [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }],
-        [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }]
-      ],
-      'Pack Premium': [
-        [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }],
-        [{ label: 'Accessoires', type: 'type', value: 'accessoires' }]
-      ],
-      'Pack Trio': [
-        [{ label: 'Portefeuilles', type: 'itemgroup', value: 'cortefeuilles' }],
-        [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }],
-        [{ label: 'Accessoires', type: 'type', value: 'accessoires' }]
-      ],
-      'Pack Duo': [
-        [{ label: 'Portefeuilles', type: 'itemgroup', value: 'cortefeuilles' }],
-        [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }]
-      ],
-      'Pack Mini Duo': [
-        [{ label: 'Porte-cartes', type: 'itemgroup', value: 'porte-cartes' }],
-        [{ label: 'Porte-clés', type: 'itemgroup', value: 'porte-cles' }]
-      ]
-    };
-
-    const singleCategories = {
-      'Pack Chemise': [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }],
-      'Pack Ceinture': [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }],
-      'Pack Cravatte': [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }],
-      'Pack Malette': [{ label: 'Mallettes', type: 'itemgroup', value: 'mallettes' }]
-    };
-
-    if (singleCategories[packType as keyof typeof singleCategories]) {
-      return singleCategories[packType as keyof typeof singleCategories];
-    }
-
-    const packCategories = categories[packType as keyof typeof categories];
-    if (!packCategories) return [];
-
-    return packCategories[selectedContainerIndex] || [];
-  };
-
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products', packType, selectedContainerIndex, selectedItems, searchTerm],
     queryFn: fetchAllProducts,
     select: (data) => {
       let filteredProducts = data;
-      const categories = getAvailableCategories();
+      const categories = getAvailableCategories(packType, selectedContainerIndex, selectedItems);
       
       console.log('Filtering with categories:', categories);
       
@@ -192,7 +128,7 @@ const ProductSelectionPanel = ({
         </div>
 
         <CategoriesDisplay 
-          categories={getAvailableCategories()} 
+          categories={getAvailableCategories(packType, selectedContainerIndex, selectedItems)} 
           selectedItems={selectedItems}
           packType={packType}
         />
