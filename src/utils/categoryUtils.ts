@@ -33,36 +33,36 @@ export const getAvailableCategories = (
     const beltCount = selectedItems.filter(item => item.itemgroup_product === 'ceintures').length;
     const cravateCount = selectedItems.filter(item => item.itemgroup_product === 'cravates').length;
 
-    // First slot must be chemise
     if (chemiseCount === 0) {
       return [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }];
     }
-    // Second slot must be belt after chemise is selected
     if (chemiseCount === 1 && beltCount === 0) {
       return [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }];
     }
-    // Third slot must be cravate after chemise and belt are selected
     if (chemiseCount === 1 && beltCount === 1 && cravateCount === 0) {
       return [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }];
     }
     return [];
   }
 
+  if (packType === 'Pack Trio') {
+    // If no items selected yet, show both portefeuilles and ceintures as options
+    if (selectedItems.length === 0) {
+      return [
+        { label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' },
+        { label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }
+      ];
+    }
+
+    // If first item is selected, only show accessoires for the second slot
+    if (selectedItems.length === 1) {
+      return [{ label: 'Accessoires', type: 'type', value: 'accessoires' }];
+    }
+
+    return [];
+  }
+
   const categories = {
-    'Pack Prestige': [
-      [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }],
-      [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }],
-      [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }]
-    ],
-    'Pack Premium': [
-      [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }],
-      [{ label: 'Accessoires', type: 'type', value: 'accessoires' }]
-    ],
-    'Pack Trio': [
-      [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }],
-      [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }],
-      [{ label: 'Accessoires', type: 'type', value: 'accessoires' }]
-    ],
     'Pack Duo': [
       [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }],
       [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }]

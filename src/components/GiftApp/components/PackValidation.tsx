@@ -74,6 +74,33 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
       break;
     }
 
+    case 'Pack Trio': {
+      // Check if we have either a portefeuille or a ceinture (but not both)
+      const hasPortefeuille = selectedItems.some(item => item.itemgroup_product === 'portefeuilles');
+      const hasCeinture = selectedItems.some(item => item.itemgroup_product === 'ceintures');
+      
+      if ((!hasPortefeuille && !hasCeinture) || (hasPortefeuille && hasCeinture)) {
+        toast({
+          title: "Sélection invalide",
+          description: "Le Pack Trio doit contenir soit 1 portefeuille, soit 1 ceinture (pas les deux)",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Check if we have exactly one accessory
+      const accessoiresCount = selectedItems.filter(item => item.type_product === 'Accessoires').length;
+      if (accessoiresCount !== 1) {
+        toast({
+          title: "Sélection invalide",
+          description: "Le Pack Trio doit contenir exactement 1 accessoire",
+          variant: "destructive",
+        });
+        return false;
+      }
+      break;
+    }
+
     case 'Pack Chemise': {
       const chemises = selectedItems.filter(item => item.itemgroup_product === 'chemises');
       if (chemises.length !== 1) {
@@ -119,21 +146,6 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
         toast({
           title: "Sélection invalide",
           description: "Le Pack Malette doit contenir exactement 1 malette",
-          variant: "destructive",
-        });
-        return false;
-      }
-      break;
-    }
-
-    case 'Pack Trio': {
-      const hasPortefeuille = selectedItems.some(item => item.itemgroup_product === 'Portefeuilles');
-      const hasCeinture = selectedItems.some(item => item.itemgroup_product === 'Ceintures');
-      const hasAccessoire = selectedItems.some(item => item.type_product === 'Accessoires');
-      if (!hasPortefeuille || !hasCeinture || !hasAccessoire) {
-        toast({
-          title: "Sélection invalide",
-          description: "Le Pack Trio doit contenir 1 portefeuille, 1 ceinture et 1 accessoire",
           variant: "destructive",
         });
         return false;
