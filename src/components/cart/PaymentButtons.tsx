@@ -16,6 +16,9 @@ interface PaymentButtonsProps {
   hasPersonalization: boolean;
 }
 
+// Development flag for bypassing payment
+const BYPASS_PAYMENT = 0; // Set to 1 to use real payment processing
+
 const PaymentButtons = ({ 
   enabled, 
   cartItems, 
@@ -36,25 +39,43 @@ const PaymentButtons = ({
     }
 
     setIsLoading(true);
+    console.log('Payment process started. BYPASS_PAYMENT =', BYPASS_PAYMENT);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 6000));
-
       const orderId = `ORDER-${Date.now()}`;
-      const response = await initKonnectPayment({
-        amount: finalTotal,
-        firstName: userDetails.firstName,
-        lastName: userDetails.lastName,
-        email: userDetails.email,
-        orderId,
-      });
 
-      sessionStorage.setItem('pendingOrder', JSON.stringify({
-        cartItems,
-        orderId
-      }));
+      if (BYPASS_PAYMENT === 0) {
+        console.log('Payment bypassed for testing - simulating successful payment');
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate loading
 
-      window.location.href = response.payUrl;
+        // Store order details in session storage
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+          cartItems,
+          orderId,
+          payUrl: 'test-mode'
+        }));
+
+        // Redirect to success page
+        navigate('/payment-success');
+      } else {
+        console.log('Initiating real payment process');
+        await new Promise(resolve => setTimeout(resolve, 6000));
+
+        const response = await initKonnectPayment({
+          amount: finalTotal,
+          firstName: userDetails.firstName,
+          lastName: userDetails.lastName,
+          email: userDetails.email,
+          orderId,
+        });
+
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+          cartItems,
+          orderId
+        }));
+
+        window.location.href = response.payUrl;
+      }
     } catch (error) {
       console.error('Payment error:', error);
       toast({
@@ -82,7 +103,9 @@ const PaymentButtons = ({
           className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
           <CreditCard size={20} />
-          Payer avec carte bancaire ({finalTotal.toFixed(2)} TND)
+          {BYPASS_PAYMENT === 0 ? 
+            `Payer (Mode Test) (${finalTotal.toFixed(2)} TND)` : 
+            `Payer avec carte bancaire (${finalTotal.toFixed(2)} TND)`}
         </motion.button>
       </div>
     </>

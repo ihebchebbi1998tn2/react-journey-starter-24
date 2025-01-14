@@ -35,6 +35,7 @@ const GiftBasket3D = ({
   const handleDrop = (containerId: number) => (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const item = JSON.parse(e.dataTransfer.getData('product'));
+    console.log('Dropped item:', item);
     setDroppedItem(item);
     setTargetContainer(containerId);
     onContainerSelect(containerId);
@@ -53,7 +54,8 @@ const GiftBasket3D = ({
   };
 
   const handleConfirm = () => {
-    if (droppedItem && selectedSize && onItemDrop) {
+    if (droppedItem && selectedSize) {
+      console.log('Confirming item with size:', selectedSize, 'and personalization:', personalization);
       onItemDrop(droppedItem, selectedSize, personalization);
       setShowAddDialog(false);
       setSelectedSize('');
@@ -68,6 +70,12 @@ const GiftBasket3D = ({
           border: '1px solid #590000',
         },
         duration: 3000,
+      });
+    } else {
+      toast({
+        title: "Taille requise",
+        description: "Veuillez sélectionner une taille avant d'ajouter l'article",
+        variant: "destructive",
       });
     }
   };

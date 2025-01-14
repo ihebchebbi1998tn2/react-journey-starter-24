@@ -3,31 +3,27 @@ import { motion } from 'framer-motion';
 import { Product } from '@/types/product';
 import { GripVertical } from 'lucide-react';
 import { calculateDiscountedPrice } from '@/utils/priceCalculations';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProductGridProps {
   products: Product[];
   onDragStart: (event: React.DragEvent<HTMLDivElement>, product: Product) => void;
+  onProductSelect?: (product: Product) => void;
 }
 
-const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
+const ProductGrid = ({ products, onDragStart, onProductSelect }: ProductGridProps) => {
+  const isMobile = useIsMobile();
+
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, product: Product) => {
-    // Calculate discounted price if applicable
-    const hasDiscount = product.discount_product !== "" && 
-                       !isNaN(parseFloat(product.discount_product)) && 
-                       parseFloat(product.discount_product) > 0;
-    
-    const finalPrice = hasDiscount 
-      ? calculateDiscountedPrice(product.price, product.discount_product)
-      : product.price;
+    if (!isMobile) {
+      onDragStart(e, product);
+    }
+  };
 
-    // Create a modified product object with the final price
-    const productWithFinalPrice = {
-      ...product,
-      price: finalPrice,
-      originalPrice: hasDiscount ? product.price : undefined
-    };
-
-    onDragStart(e, productWithFinalPrice);
+  const handleClick = (product: Product) => {
+    if (isMobile && onProductSelect) {
+      onProductSelect(product);
+    }
   };
 
   if (products.length === 0) {
@@ -54,16 +50,19 @@ const ProductGrid = ({ products, onDragStart }: ProductGridProps) => {
         return (
           <motion.div
             key={product.id}
-            draggable
+            draggable={!isMobile}
             onDragStart={(e) => handleDragStart(e, product)}
+            onClick={() => handleClick(product)}
             data-product-type={product.itemgroup_product}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-white rounded-lg shadow-sm p-4 cursor-grab active:cursor-grabbing border border-gray-100/50 hover:shadow-md transition-all"
+            className={`bg-white rounded-lg shadow-sm p-4 border border-gray-100/50 hover:shadow-md transition-all ${
+              isMobile ? 'cursor-pointer active:scale-95' : 'cursor-grab active:cursor-grabbing'
+            }`}
           >
             <div className="relative">
-              <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />
+              {!isMobile && <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />}
               <img
                 src={product.image}
                 alt={product.name}

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useQuery } from "@tanstack/react-query";
@@ -7,10 +7,11 @@ import ProductCard from "./ProductCard";
 import Categories from "./Categories";
 
 const Products = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
-      align: "center",
+      align: "start",
       skipSnaps: false,
       dragFree: false,
       containScroll: "trimSnaps",
@@ -27,7 +28,19 @@ const Products = () => {
   const { data: products, isLoading, error } = useQuery({
     queryKey: ["products"],
     queryFn: fetchAllProducts,
+    select: (data) => {
+      // Filter out products with type_product === "outlet"
+      return data.filter(product => product.type_product !== "outlet");
+    }
   });
+
+  // Filter products based on selected category
+  const filteredProducts = React.useMemo(() => {
+    if (!selectedCategory) return products;
+    return products?.filter(
+      (product) => product.itemgroup_product === selectedCategory
+    );
+  }, [products, selectedCategory]);
 
   // Navigation handlers
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
@@ -50,6 +63,19 @@ const Products = () => {
     onSelect();
   }, [emblaApi, onSelect]);
 
+  // Listen for category filter events
+  useEffect(() => {
+    const handleFilterCategory = (event: CustomEvent<{ category: string }>) => {
+      setSelectedCategory(event.detail.category);
+      console.log('Filtering by category:', event.detail.category);
+    };
+
+    window.addEventListener('filterCategory', handleFilterCategory as EventListener);
+    return () => {
+      window.removeEventListener('filterCategory', handleFilterCategory as EventListener);
+    };
+  }, []);
+
   if (error) {
     console.error("Error loading products:", error);
     return <div className="text-center text-red-500">Failed to load products</div>;
@@ -68,7 +94,7 @@ const Products = () => {
                     <div className="skeleton-card"></div>
                   </div>
                 ))
-              : products?.map((product) => (
+              : filteredProducts?.map((product) => (
                   <div className="embla__slide" key={product.id}>
                     <ProductCard product={product} />
                   </div>
@@ -126,7 +152,7 @@ const Products = () => {
           transition: transform 0.3s ease;
         }
         .embla__slide {
-          min-width: 300px;
+          min-width: calc(100% / 5); /* Show 4 slides */
           flex: 0 0 auto;
           padding: 1rem;
           display: flex;
@@ -158,7 +184,7 @@ const Products = () => {
           display: flex;
           justify-content: center;
           align-items: center;
-          font-size: 3rem;
+          font-size: 2rem;
           font-weight: bold;
           cursor: pointer;
           z-index: 10;
@@ -170,15 +196,6 @@ const Products = () => {
         .embla__button--next {
           right: 0;
         }
-        .embla__button .arrow-content {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          width: 100%;
-          font-size: 2.4rem;
-          line-height: 1;
-        }
         .embla__button:hover {
           background-color: #000;
         }
@@ -187,37 +204,16 @@ const Products = () => {
           cursor: not-allowed;
         }
 
-        /* Mobile-specific styles */
+        /* Responsive styles */
         @media (max-width: 768px) {
-          .embla__button {
-            width: 36px;
-            height: 36px;
-          }
-          .embla__button .arrow-content {
-            font-size: 2.16rem;
-          }
-          .embla__button--prev {
-            left: 5px;
-          }
-          .embla__button--next {
-            right: 5px;
+          .embla__slide {
+            min-width: calc(100% / 4); /* Show 2 slides */
           }
         }
 
-        /* Extra small screens */
         @media (max-width: 480px) {
-          .embla__button {
-            width: 30px;
-            height: 30px;
-          }
-          .embla__button .arrow-content {
-            font-size: 1.8rem;
-          }
-          .embla__button--prev {
-            left: 2px;
-          }
-          .embla__button--next {
-            right: 2px;
+          .embla__slide {
+            min-width: 100%; /* Show 1 slide */
           }
         }
         `}
@@ -227,4 +223,3 @@ const Products = () => {
 };
 
 export default Products;
-

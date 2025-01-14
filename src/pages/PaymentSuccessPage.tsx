@@ -6,76 +6,156 @@ import { useCart } from '@/components/cart/CartProvider';
 import { updateProductStock } from '@/utils/stockManagement';
 import { submitOrder } from '@/services/orderSubmissionApi';
 import { toast } from "@/hooks/use-toast";
+import { getUserDetails } from '@/utils/userDetailsStorage';
 
 const PaymentSuccessPage = () => {
   const navigate = useNavigate();
   const { clearCart, cartItems, hasNewsletterDiscount, calculateTotal } = useCart();
-  const { subtotal, discount: newsletterDiscount, total } = calculateTotal();
+  const { subtotal, discount: newsletterDiscount, total, boxTotal } = calculateTotal();
   const shipping = subtotal > 500 ? 0 : 7;
   const finalTotal = total + shipping;
 
   useEffect(() => {
     const handlePaymentSuccess = async () => {
       try {
+        console.log('Starting payment success handler...');
         const pendingOrderString = sessionStorage.getItem('pendingOrder');
-        if (pendingOrderString) {
-          const pendingOrder = JSON.parse(pendingOrderString);
-          console.log('Processing pending order:', pendingOrder);
+        if (!pendingOrderString) {
+          console.error('No pending order found');
+          toast({
+            title: "Error",
+            description: "No pending order found. Please complete the checkout process.",
+            variant: "destructive",
+            duration: Infinity
+          });
+          return;
+        }
+
+        const pendingOrder = JSON.parse(pendingOrderString);
+        console.log('Processing pending order:', pendingOrder);
+        
+        const userDetails = getUserDetails();
+        const sessionUserDetails = sessionStorage.getItem('userDetails');
+        const finalUserDetails = userDetails || (sessionUserDetails ? JSON.parse(sessionUserDetails) : null);
+        
+        if (!finalUserDetails) {
+          const errorMessage = 'User details not found. Please complete the checkout process again.';
+          console.error(errorMessage);
+          toast({
+            title: "Error - Missing User Details",
+            description: errorMessage,
+            duration: Infinity,
+            variant: "destructive"
+          });
+          setTimeout(() => navigate('/cart'), 3000);
+          return;
+        }
+
+        console.log('Retrieved user details:', finalUserDetails);
+        await updateProductStock(pendingOrder.cartItems);
+
+        // Get the current pack type from session storage
+        const currentPackType = sessionStorage.getItem('selectedPackType');
+        console.log('Current pack type:', currentPackType);
+
+        // Format items with correct pack information
+        const formattedItems = pendingOrder.cartItems.map((item: any) => {
+          console.log('Processing item:', item);
+
+          // Calculate discounted price if applicable
+          const itemPrice = item.discount_product ? 
+            item.price * (1 - parseFloat(item.discount_product) / 100) : 
+            item.price;
+
+          // Format image URL
+          const imageUrl = item.image.startsWith('http') ? 
+            item.image : 
+            `https://respizenmedical.com/fiori/${item.image}`;
+
+          // Check if the item is a pack charge
+          const isPackCharge = item.type_product === "Pack";
           
-          await updateProductStock(pendingOrder.cartItems);
+          // Determine if item is from pack and which pack
+          const packInfo = isPackCharge ? "aucun" : 
+                          item.fromPack ? currentPackType || "aucun" : "aucun";
 
-          const userDetails = JSON.parse(sessionStorage.getItem('userDetails') || '{}');
-          const packType = sessionStorage.getItem('selectedPackType') || 'aucun';
-
-          const formattedItems = pendingOrder.cartItems.map((item: any) => ({
-            id: item.id,
-            name: item.personalization 
-              ? `${item.name} (Personnalisation = ${item.personalization})`
-              : item.name,
-            price: item.price,
+          const formattedItem = {
+            item_id: item.id.toString(),
             quantity: item.quantity,
-            image: item.image,
+            price: itemPrice,
+            total_price: itemPrice * item.quantity,
+            name: item.name,
             size: item.size || '-',
             color: item.color || '-',
             personalization: item.personalization || '-',
-            pack: packType,
-            box: item.withBox ? 'Avec box' : 'Sans box'
-          }));
-
-          const orderData = {
-            order_id: pendingOrder.orderId,
-            user_details: {
-              first_name: userDetails.firstName,
-              last_name: userDetails.lastName,
-              email: userDetails.email,
-              phone: userDetails.phone,
-              address: userDetails.address,
-              country: userDetails.country,
-              zip_code: userDetails.zipCode
-            },
-            items: formattedItems,
-            price_details: {
-              subtotal,
-              shipping_cost: shipping,
-              has_newsletter_discount: hasNewsletterDiscount,
-              newsletter_discount_amount: newsletterDiscount,
-              final_total: finalTotal
-            },
-            payment: {
-              method: 'card' as const,
-              status: 'completed',
-              konnect_payment_url: pendingOrder.payUrl || '-',
-              completed_at: new Date().toISOString()
-            },
-            order_status: {
-              status: 'not yet',
-              shipped_at: '-',
-              delivered_at: '-'
-            }
+            pack: packInfo,
+            box: item.withBox ? 'Avec box' : 'Sans box',
+            image: imageUrl
           };
 
-          await submitOrder(orderData);
-          
+          console.log('Formatted item:', formattedItem);
+          return formattedItem;
+        });
+
+        const orderData = {
+          order_id: pendingOrder.orderId,
+          user_details: {
+            first_name: finalUserDetails.firstName || '',
+            last_name: finalUserDetails.lastName || '',
+            email: finalUserDetails.email || '',
+            phone: finalUserDetails.phone || '',
+            address: finalUserDetails.address || '',
+            country: finalUserDetails.country || '',
+            zip_code: finalUserDetails.zipCode || ''
+          },
+          items: formattedItems,
+          price_details: {
+            subtotal: subtotal,
+            box_total: boxTotal,
+            shipping_cost: shipping,
+            has_newsletter_discount: hasNewsletterDiscount,
+            newsletter_discount_amount: newsletterDiscount,
+            final_total: finalTotal
+          },
+          payment: {
+            method: 'card' as const,
+            status: 'completed',
+            konnect_payment_url: pendingOrder.payUrl || '-',
+            completed_at: new Date().toISOString()
+          },
+          order_status: {
+            status: 'pending',
+            shipped_at: null,
+            delivered_at: null
+          }
+        };
+
+        console.log('Submitting order data to API:', JSON.stringify(orderData, null, 2));
+
+        const isTestMode = pendingOrder.payUrl === 'test-mode';
+        
+        if (isTestMode) {
+          toast({
+            title: "Mode Test - Détails de la requête API",
+            description: (
+              <pre className="mt-2 w-full max-h-96 overflow-auto rounded-lg bg-slate-950 p-4">
+                <code className="text-white text-xs">
+                  {JSON.stringify(orderData, null, 2)}
+                </code>
+              </pre>
+            ),
+            duration: Infinity
+          });
+        }
+
+        const response = await submitOrder(orderData);
+        console.log('API Response:', response);
+
+        if (!response.success) {
+          throw new Error(response.message || 'Failed to submit order');
+        }
+        
+        if (!isTestMode) {
           toast({
             title: "Commande confirmée !",
             description: "Un email de confirmation vous a été envoyé.",
@@ -84,25 +164,45 @@ const PaymentSuccessPage = () => {
               color: 'white',
               border: '1px solid #590000',
             },
+            duration: Infinity
           });
-          
-          sessionStorage.removeItem('pendingOrder');
-          sessionStorage.removeItem('selectedPackType');
         }
-
+        
+        // Clear session storage and cart
+        sessionStorage.removeItem('pendingOrder');
+        sessionStorage.removeItem('selectedPackType');
         clearCart();
-      } catch (error) {
-        console.error('Error processing payment success:', error);
+      } catch (error: any) {
+        console.error('Error processing order:', error);
+        
+        const errorDetails = {
+          message: error.message,
+          response: error.response?.data,
+          stack: error.stack
+        };
+
+        console.error('Detailed error:', errorDetails);
+
         toast({
           title: "Erreur",
-          description: "Une erreur est survenue lors du traitement de votre commande. Notre équipe a été notifiée.",
+          description: (
+            <div className="space-y-2">
+              <p>Erreur lors du traitement de la commande:</p>
+              <pre className="mt-2 w-full max-h-96 overflow-auto rounded-lg bg-slate-950 p-4">
+                <code className="text-white text-xs">
+                  {JSON.stringify(errorDetails, null, 2)}
+                </code>
+              </pre>
+            </div>
+          ),
           variant: "destructive",
+          duration: Infinity
         });
       }
     };
 
     handlePaymentSuccess();
-  }, [clearCart, hasNewsletterDiscount, subtotal, newsletterDiscount, finalTotal]);
+  }, [clearCart, hasNewsletterDiscount, subtotal, newsletterDiscount, finalTotal, shipping, navigate, total, boxTotal]);
 
   return (
     <div className="min-h-screen bg-[#F1F0FB] flex items-center justify-center p-4">
