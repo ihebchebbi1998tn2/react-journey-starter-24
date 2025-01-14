@@ -11,12 +11,27 @@ export const getAvailableCategories = (
   selectedContainerIndex: number,
   selectedItems: Product[]
 ): CategoryType[] => {
+  if (packType === 'Pack Premium') {
+    // First slot must be cravate
+    if (selectedContainerIndex === 0) {
+      return [{ label: 'Cravates', type: 'itemgroup', value: 'cravates' }];
+    }
+
+    // For second and third slots, show remaining available categories
+    const usedCategories = selectedItems.map(item => item.itemgroup_product);
+    const availableCategories = [
+      { label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' },
+      { label: 'Ceintures', type: 'itemgroup', value: 'ceintures' },
+      { label: 'Cravates', type: 'itemgroup', value: 'cravates' }
+    ].filter(category => !usedCategories.includes(category.value));
+
+    return availableCategories;
+  }
+
   if (packType === 'Pack Prestige') {
     const chemiseCount = selectedItems.filter(item => item.itemgroup_product === 'chemises').length;
     const beltCount = selectedItems.filter(item => item.itemgroup_product === 'ceintures').length;
     const cravateCount = selectedItems.filter(item => item.itemgroup_product === 'cravates').length;
-
-    console.log('Current counts - Chemises:', chemiseCount, 'Belts:', beltCount, 'Cravates:', cravateCount);
 
     // First slot must be chemise
     if (chemiseCount === 0) {
@@ -44,12 +59,12 @@ export const getAvailableCategories = (
       [{ label: 'Accessoires', type: 'type', value: 'accessoires' }]
     ],
     'Pack Trio': [
-      [{ label: 'Portefeuilles', type: 'itemgroup', value: 'cortefeuilles' }],
+      [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }],
       [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }],
       [{ label: 'Accessoires', type: 'type', value: 'accessoires' }]
     ],
     'Pack Duo': [
-      [{ label: 'Portefeuilles', type: 'itemgroup', value: 'cortefeuilles' }],
+      [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }],
       [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }]
     ],
     'Pack Mini Duo': [
