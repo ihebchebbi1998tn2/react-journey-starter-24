@@ -4,13 +4,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Edit2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { savePersonalization, removePersonalization, getPersonalizations } from '@/utils/personalizationStorage';
+import { canItemBePersonalized, getPersonalizationMessage } from '@/utils/personalizationConfig';
 
 interface PersonalizationInputProps {
   itemId: number;
   onUpdate: (text: string) => void;
+  itemGroup: string;
 }
 
-const PersonalizationInput = ({ itemId, onUpdate }: PersonalizationInputProps) => {
+const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationInputProps) => {
   const [isPersonalized, setIsPersonalized] = useState(() => {
     const personalizations = getPersonalizations();
     return !!personalizations[itemId];
@@ -20,6 +22,17 @@ const PersonalizationInput = ({ itemId, onUpdate }: PersonalizationInputProps) =
     return personalizations[itemId] || '';
   });
   const [isEditing, setIsEditing] = useState(!text);
+
+  const canPersonalize = canItemBePersonalized(itemGroup);
+  const personalizationMessage = getPersonalizationMessage(itemGroup);
+
+  if (!canPersonalize) {
+    return personalizationMessage ? (
+      <div className="mt-2 text-sm text-gray-500 italic">
+        {personalizationMessage}
+      </div>
+    ) : null;
+  }
 
   const handleSave = () => {
     const trimmedText = text.trim();
@@ -107,14 +120,6 @@ const PersonalizationInput = ({ itemId, onUpdate }: PersonalizationInputProps) =
             >
               <Edit2 className="h-4 w-4" />
             </Button>
-          {/*   <Button
-              size="icon"
-              variant="ghost"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={handleRemove}
-            >
-              <X className="h-4 w-4" />
-            </Button> */}
           </div>
         </div>
       )}

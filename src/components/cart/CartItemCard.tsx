@@ -75,6 +75,7 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
           <PersonalizationInput
             itemId={item.id}
             onUpdate={() => {}}
+            itemGroup={item.itemgroup_product}
           />
 
           <div className="flex items-center justify-between sm:justify-start gap-4 mt-3">
