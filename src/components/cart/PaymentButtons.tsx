@@ -16,8 +16,8 @@ interface PaymentButtonsProps {
   hasPersonalization: boolean;
 }
 
-// Development flag for bypassing payment
-const BYPASS_PAYMENT = 0; // Set to 1 to use real payment processing
+// Set to 1 to use real payment processing
+const BYPASS_PAYMENT = 1;
 
 const PaymentButtons = ({ 
   enabled, 
@@ -38,49 +38,68 @@ const PaymentButtons = ({
       return;
     }
 
+    if (finalTotal <= 0) {
+      toast({
+        title: "Erreur",
+        description: "Le montant du paiement doit être supérieur à 0",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    console.log('Payment process started. BYPASS_PAYMENT =', BYPASS_PAYMENT);
+    console.log('Payment process started with amount:', finalTotal);
 
     try {
       const orderId = `ORDER-${Date.now()}`;
 
       if (BYPASS_PAYMENT === 0) {
         console.log('Payment bypassed for testing - simulating successful payment');
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate loading
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Store order details in session storage
         sessionStorage.setItem('pendingOrder', JSON.stringify({
           cartItems,
           orderId,
           payUrl: 'test-mode'
         }));
 
-        // Redirect to success page
         navigate('/payment-success');
       } else {
-        console.log('Initiating real payment process');
-        await new Promise(resolve => setTimeout(resolve, 6000));
-
+        console.log('Initiating real payment process with Konnect');
         const response = await initKonnectPayment({
-          amount: finalTotal,
+          amount: Math.round(finalTotal * 100) / 100, // Ensure 2 decimal places
           firstName: userDetails.firstName,
           lastName: userDetails.lastName,
           email: userDetails.email,
           orderId,
         });
 
+        console.log('Konnect payment response:', response);
+
+        if (!response || !response.payUrl) {
+          throw new Error('Invalid payment URL received from Konnect');
+        }
+
         sessionStorage.setItem('pendingOrder', JSON.stringify({
           cartItems,
-          orderId
+          orderId,
+          payUrl: response.payUrl
         }));
 
+        // Redirect to Konnect payment page
         window.location.href = response.payUrl;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment error:', error);
+      
+      let errorMessage = "Une erreur s'est produite lors de l'initialisation du paiement.";
+      if (error.message.includes('Invalid amount')) {
+        errorMessage = "Le montant du paiement est invalide.";
+      }
+      
       toast({
         title: "Erreur de paiement",
-        description: "Échec de l'initialisation du paiement. Veuillez réessayer.",
+        description: errorMessage,
         variant: "destructive",
       });
       setIsLoading(false);
