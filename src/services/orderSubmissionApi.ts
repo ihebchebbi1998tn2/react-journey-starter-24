@@ -57,6 +57,10 @@ const sendOrderConfirmationEmail = async (orderData: OrderSubmission): Promise<v
   console.log('Starting email confirmation process...');
   
   try {
+    // Calculate shipping cost based on subtotal
+    const subtotal = orderData.price_details.subtotal;
+    const shippingCost = subtotal >= 299 ? 0 : orderData.price_details.shipping_cost;
+    
     // Format the data according to the email endpoint requirements
     const emailPayload = {
       user_details: {
@@ -81,9 +85,9 @@ const sendOrderConfirmationEmail = async (orderData: OrderSubmission): Promise<v
       })),
       price_details: {
         subtotal: orderData.price_details.subtotal.toString(),
-        shipping_cost: orderData.price_details.shipping_cost.toString(),
+        shipping_cost: shippingCost.toString(),
         newsletter_discount_amount: orderData.price_details.newsletter_discount_amount.toString(),
-        final_total: orderData.price_details.final_total.toString()
+        final_total: (orderData.price_details.subtotal + shippingCost - orderData.price_details.newsletter_discount_amount).toString()
       },
       payment: {
         method: orderData.payment.method === 'card' ? 'Credit Card' : 'Cash',
@@ -133,23 +137,29 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
   console.log('Starting order submission process...');
 
   try {
-    // Format items to ensure personalization is properly handled
-    const formattedItems = orderData.items.map(item => ({
-      ...item,
-      pack: item.pack || 'aucun',
-      size: item.size || '-',
-      personalization: item.personalization && item.personalization !== '' ? item.personalization : '-',
-      box: item.box || 'Sans box'
-    }));
-
+    // Calculate shipping cost based on subtotal
+    const subtotal = orderData.price_details.subtotal;
+    const shippingCost = subtotal >= 299 ? 0 : orderData.price_details.shipping_cost;
+    
+    // Update the order data with correct shipping cost
     const formattedOrderData = {
       ...orderData,
-      items: formattedItems
+      price_details: {
+        ...orderData.price_details,
+        shipping_cost: shippingCost,
+        final_total: subtotal + shippingCost - orderData.price_details.newsletter_discount_amount
+      },
+      items: orderData.items.map(item => ({
+        ...item,
+        pack: item.pack || 'aucun',
+        size: item.size || '-',
+        personalization: item.personalization && item.personalization !== '' ? item.personalization : '-',
+        box: item.box || 'Sans box'
+      }))
     };
 
     console.log('Submitting order with formatted data:', JSON.stringify(formattedOrderData, null, 2));
 
-    // Submit the order
     const orderResponse = await fetch('https://respizenmedical.com/fiori/submit_all_order.php', {
       method: 'POST',
       headers: {
@@ -180,7 +190,7 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
     // If order submission is successful, send confirmation email
     try {
       console.log('Attempting to send confirmation email...');
-      await sendOrderConfirmationEmail(orderData);
+      await sendOrderConfirmationEmail(formattedOrderData);
       console.log('Email confirmation sent successfully');
     } catch (emailError) {
       console.error('Email confirmation failed but order was submitted:', emailError);
