@@ -21,7 +21,7 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
     const personalizations = getPersonalizations();
     return personalizations[itemId] || '';
   });
-  const [isEditing, setIsEditing] = useState(!text);
+  const [isEditing, setIsEditing] = useState(false);
 
   const canPersonalize = canItemBePersonalized(itemGroup);
   const personalizationMessage = getPersonalizationMessage(itemGroup);
@@ -32,6 +32,11 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
         {personalizationMessage}
       </div>
     ) : null;
+  }
+
+  // Only show personalization UI if there's existing personalization
+  if (!isPersonalized && !text) {
+    return null;
   }
 
   const handleSave = () => {
@@ -58,22 +63,6 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
       setIsEditing(false);
     }
   };
-
-  if (!isPersonalized) {
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-full mt-2 text-sm bg-[#700100] hover:bg-[#590000] text-white border-[#700100] hover:border-[#590000] transition-all duration-300 shadow-sm hover:shadow-md"
-        onClick={() => {
-          setIsPersonalized(true);
-          setIsEditing(true);
-        }}
-      >
-        + Ajouter une personnalisation
-      </Button>
-    );
-  }
 
   return (
     <motion.div 
@@ -115,11 +104,19 @@ const PersonalizationInput = ({ itemId, onUpdate, itemGroup }: PersonalizationIn
             <Button
               size="icon"
               variant="ghost"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-[#700100] hover:text-[#590000] hover:bg-[#700100]/10"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-[#700100] text-[#590000] bg-[#700100]"
               onClick={() => setIsEditing(true)}
             >
               <Edit2 className="h-4 w-4" />
             </Button>
+          {/*   <Button
+              size="icon"
+              variant="ghost"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
+              onClick={handleRemove}
+            >
+              <X className="h-4 w-4" />
+            </Button> */}
           </div>
         </div>
       )}

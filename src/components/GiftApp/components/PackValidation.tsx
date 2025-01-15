@@ -23,26 +23,21 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
         return false;
       }
 
-      // Get the second and third items' categories
-      const secondItemCategory = selectedItems[1]?.itemgroup_product;
-      const thirdItemCategory = selectedItems[2]?.itemgroup_product;
-
-      // Check if second and third items are from allowed categories
-      const allowedCategories = ['portefeuilles', 'ceintures', 'cravates'];
-      if (!allowedCategories.includes(secondItemCategory) || !allowedCategories.includes(thirdItemCategory)) {
+      // Check if second item is a portefeuille
+      if (selectedItems[1]?.itemgroup_product !== 'portefeuilles') {
         toast({
           title: "Sélection invalide",
-          description: "Les articles 2 et 3 doivent être des portefeuilles, ceintures ou cravates",
+          description: "Le deuxième article doit être un portefeuille",
           variant: "destructive",
         });
         return false;
       }
 
-      // Check if second and third items are different
-      if (secondItemCategory === thirdItemCategory) {
+      // Check if third item is a ceinture
+      if (selectedItems[2]?.itemgroup_product !== 'ceintures') {
         toast({
           title: "Sélection invalide",
-          description: "Vous ne pouvez pas sélectionner deux articles de la même catégorie",
+          description: "Le troisième article doit être une ceinture",
           variant: "destructive",
         });
         return false;
@@ -52,7 +47,8 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
 
     case 'Pack Prestige': {
       const chemises = selectedItems.filter(item => item.itemgroup_product === 'chemises');
-      const accessoiresCount = selectedItems.filter(item => item.type_product === 'Accessoires').length;
+      const ceintures = selectedItems.filter(item => item.itemgroup_product === 'ceintures');
+      const cravates = selectedItems.filter(item => item.itemgroup_product === 'cravates');
       
       if (chemises.length !== 1) {
         toast({
@@ -63,10 +59,19 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
         return false;
       }
       
-      if (accessoiresCount !== 2) {
+      if (ceintures.length !== 1) {
         toast({
           title: "Sélection invalide",
-          description: "Le Pack Prestige doit contenir 2 accessoires",
+          description: "Le Pack Prestige doit contenir exactement 1 ceinture",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (cravates.length !== 1) {
+        toast({
+          title: "Sélection invalide",
+          description: "Le Pack Prestige doit contenir exactement 1 cravate",
           variant: "destructive",
         });
         return false;

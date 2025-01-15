@@ -48,10 +48,10 @@ const ProductSelectionPanel = ({
         filteredProducts = data.filter(product => {
           return categories.some(category => {
             if (category.type === 'itemgroup') {
-              // For chemises, also check if it's in the homme category
-              if (category.value === 'chemises') {
+              // Check for additional filters if they exist
+              if (category.additionalFilter) {
                 return product.itemgroup_product === category.value && 
-                       product.category_product === 'homme';
+                       product[category.additionalFilter.field as keyof Product] === category.additionalFilter.value;
               }
               return product.itemgroup_product === category.value;
             }
@@ -66,6 +66,18 @@ const ProductSelectionPanel = ({
         filteredProducts = filteredProducts.filter(product => 
           !selectedItems.some(item => item.id === product.id)
         );
+
+        // For Pack Trio, filter out accessories of the same type that are already selected
+        if (packType === 'Pack Trio' && selectedItems.length > 0) {
+          const selectedAccessoryTypes = selectedItems
+            .filter(item => item.type_product === 'accessoires')
+            .map(item => item.itemgroup_product);
+
+          filteredProducts = filteredProducts.filter(product => 
+            product.type_product !== 'accessoires' || 
+            !selectedAccessoryTypes.includes(product.itemgroup_product)
+          );
+        }
       }
 
       // Apply search filter after category filtering

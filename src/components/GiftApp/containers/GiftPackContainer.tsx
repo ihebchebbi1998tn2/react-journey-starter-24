@@ -12,6 +12,7 @@ interface GiftPackContainerProps {
   onRemoveItem?: (index: number) => void;
   containerIndex: number;
   className?: string;
+  imageScale?: number;
 }
 
 const GiftPackContainer = ({
@@ -22,6 +23,7 @@ const GiftPackContainer = ({
   onRemoveItem,
   containerIndex,
   className = '',
+  imageScale = 1,
 }: GiftPackContainerProps) => {
   const [isDragOver, setIsDragOver] = React.useState(false);
 
@@ -57,12 +59,12 @@ const GiftPackContainer = ({
         isDragOver ? 'border-[#700100] bg-[#700100]/5' : ''
       }`}
     >
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-        <h3 className={`text-lg font-medium ${item ? 'text-white' : 'text-white'} mb-2`}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
+        <h3 className={`text-sm font-medium ${item ? 'text-white' : 'text-white'} mb-1`}>
           {title}
         </h3>
         {!item && (
-          <p className="text-sm text-gray-400 text-center">
+          <p className="text-xs text-gray-400 text-center">
             Glissez et déposez un article ici
           </p>
         )}
@@ -75,27 +77,28 @@ const GiftPackContainer = ({
             onClick={() => onItemClick?.(item)}
           >
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative w-4/5 h-4/5 p-4 rounded-lg bg-black/50 backdrop-blur-sm shadow-lg border border-gray-800/30 transition-all duration-300 group-hover:shadow-xl">
+              <div className="relative w-[90%] h-[90%] p-2 rounded-lg bg-black/50 backdrop-blur-sm shadow-lg border border-gray-800/30 transition-all duration-300 group-hover:shadow-xl">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg"
+                  className={`w-full h-full object-contain transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg transform scale-${imageScale}`}
+                  style={{ transform: `scale(${imageScale})` }}
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-3 bg-black/80 backdrop-blur-sm rounded-b-lg">
-                  <p className="text-sm font-medium text-white truncate text-center mb-1">
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/80 backdrop-blur-sm rounded-b-lg">
+                  <p className="text-xs font-medium text-white truncate text-center mb-0.5">
                     {item.name}
                   </p>
-                  <p className="text-sm font-medium text-[#fff] text-center">
+                  <p className="text-xs font-medium text-[#fff] text-center">
                     {formatPrice(item.price)} TND
                   </p>
                 </div>
                 {onRemoveItem && (
                   <button
                     onClick={handleRemoveItem}
-                    className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-100 hover:bg-red-600 transition-all duration-300 transform hover:scale-110 shadow-lg z-10"
+                    className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full opacity-100 hover:bg-red-600 transition-all duration-300 transform hover:scale-110 shadow-lg z-10"
                     aria-label="Remove item"
                   >
-                    <X size={16} />
+                    <X size={14} />
                   </button>
                 )}
               </div>
