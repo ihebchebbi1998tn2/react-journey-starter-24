@@ -28,14 +28,14 @@ function WelcomePackPrestige({ onCompose }) {
                 Composez votre coffret
               </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 h-full">
-              <div className="flex sm:block space-x-2 sm:space-x-0 sm:space-y-1 sm:mr-0">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
+              <div className="flex flex-row sm:flex-col sm:justify-start space-x-2 sm:space-x-0 sm:space-y-4">
                 {content.images.map((image, index) => (
                   <img 
                     key={index}
                     src={image}
                     alt={`${content.title} showcase ${index + 1}`}
-                    className="w-[30%] sm:w-[35%] h-[120px] sm:h-[160px] object-cover sm:mx-auto"
+                    className="w-[30%] sm:w-full h-[120px] sm:h-[160px] object-cover"
                   />
                 ))}
               </div>
