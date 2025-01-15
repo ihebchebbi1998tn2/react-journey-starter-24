@@ -29,17 +29,18 @@ function WelcomePackPrestige({ onCompose }) {
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 h-full">
-              <div className="space-y-1 mr-[-40%]">
+              {/* Updated mobile layout */}
+              <div className="flex sm:block space-x-2 sm:space-x-0 sm:space-y-1 sm:mr-[-40%]">
                 {content.images.map((image, index) => (
                   <img 
                     key={index}
                     src={image}
                     alt={`${content.title} showcase ${index + 1}`}
-                    className="w-[35%] h-[160px] object-cover mx-auto"
+                    className="w-[30%] sm:w-[35%] h-[120px] sm:h-[160px] object-cover sm:mx-auto"
                   />
                 ))}
               </div>
-              <div className="h-[480px] sm:h-full">
+              <div className="h-[480px] sm:h-full mt-4 sm:mt-0">
                 <VideoPreview
                   videoUrl={content.videoUrl}
                   onClick={() => setIsVideoOpen(true)}
