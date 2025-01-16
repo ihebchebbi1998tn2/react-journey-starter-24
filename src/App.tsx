@@ -7,10 +7,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "./components/cart/CartProvider";
 import { usePageTracking } from "./hooks/usePageTracking";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { Skeleton } from "./components/ui/skeleton";
+import { PageLoader } from "./components/PageLoader";
 import { AnimatePresence, motion } from "framer-motion";
 
-// Lazy load pages
+// Lazy load pages with minimal delay
 const Index = React.lazy(() => import("./pages/Index"));
 const CategoryPage = React.lazy(() => import("./pages/CategoryPage"));
 const GiftUniversePage = React.lazy(() => import("./pages/GiftUniversePage"));
@@ -37,23 +37,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-// Loading fallback component with animation
-const PageLoader = () => (
-  <motion.div 
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    transition={{ duration: 0.2 }}
-    className="min-h-screen flex items-center justify-center p-4"
-  >
-    <div className="w-full max-w-md space-y-4">
-      <Skeleton className="h-12 w-full" />
-      <Skeleton className="h-64 w-full" />
-      <Skeleton className="h-32 w-full" />
-    </div>
-  </motion.div>
-);
 
 // Wrapper component to implement tracking
 const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -84,14 +67,15 @@ const App = () => (
             <TrackingWrapper>
               <AnimatePresence mode="wait">
                 <Routes>
-                <Route 
-                  path="/" 
-                  element={
-                    <Suspense fallback={<PageLoader />}>
-                      <Index />
-                    </Suspense>
-                  } 
-                />
+                  {/* Routes with optimized Suspense configuration */}
+                  <Route 
+                    path="/" 
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <Index />
+                      </Suspense>
+                    } 
+                  />
                 <Route 
                   path="/category/*" 
                   element={
