@@ -48,9 +48,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    // Clear dev cache if enabled
     clearDevCache();
-    
     const savedItems = getCartItems();
     const personalizations = getPersonalizations();
     
@@ -72,11 +70,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('Adding item to cart:', item);
     
     setCartItems(prevItems => {
-      // Check if this is a pack item
       if (item.fromPack || item.type_product === "Pack") {
         const packType = item.pack;
-        
-        // If adding a pack item, first verify it's not already in the cart
         const existingPackItems = prevItems.filter(i => i.pack === packType);
         if (existingPackItems.some(i => i.id === item.id)) {
           console.log('Item already exists in pack, skipping...');
@@ -134,23 +129,24 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (itemToRemove) {
       setCartItems(prevItems => {
-        // If the item is from a pack or is a pack itself
-        if (itemToRemove.fromPack || itemToRemove.type_product === "Pack") {
-          const packType = itemToRemove.pack;
-          
-          // Get all items from this pack (including packaging fee)
-          const packItems = prevItems.filter(item => 
-            item.pack === packType && (item.fromPack || item.type_product === "Pack")
-          );
+        // If the item is a pack packaging fee or from a pack
+        if (itemToRemove.type_product === "Pack" || itemToRemove.fromPack) {
+          const packType = itemToRemove.type_product === "Pack" 
+            ? itemToRemove.name.split(' - ')[0]  // Extract pack type from packaging fee name
+            : itemToRemove.pack;
           
           // Remove all items from this pack including the packaging fee
-          const remainingItems = prevItems.filter(item => 
-            !(item.pack === packType && (item.fromPack || item.type_product === "Pack"))
-          );
+          const remainingItems = prevItems.filter(item => {
+            const isPackagingFee = item.type_product === "Pack" && 
+                                 item.name.split(' - ')[0] === packType;
+            const isPackItem = item.pack === packType && item.fromPack;
+            
+            return !isPackagingFee && !isPackItem;
+          });
           
           toast({
             title: "Pack supprimé",
-            description: "Le pack et tous ses articles ont été supprimés du panier. Veuillez recréer un nouveau pack complet pour continuer.",
+            description: "Le pack et tous ses articles ont été supprimés du panier",
             style: {
               backgroundColor: '#700100',
               color: 'white',
