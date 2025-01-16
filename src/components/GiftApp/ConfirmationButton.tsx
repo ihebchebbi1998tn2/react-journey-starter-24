@@ -15,7 +15,7 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
   let holdTimer: NodeJS.Timeout;
 
   const startHolding = () => {
-    if (isLoading) return;
+    if (isLoading || disabled) return;
     
     setIsHolding(true);
     let progress = 0;
@@ -32,15 +32,16 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
     }, 20);
   };
 
-  const handleConfirmation = async () => {
-    if (isLoading) return; // Prevent double submission
+  const handleConfirmation = () => {
+    if (isLoading || disabled) return;
+    setIsLoading(true);
     
-    setIsLoading(true); // Set loading state immediately
-    
+    // Immediately show loading state and prevent further clicks
     try {
-      await onConfirm();
+      onConfirm();
     } catch (error) {
       console.error('Error during confirmation:', error);
+      setIsLoading(false);
     }
   };
 
@@ -52,8 +53,6 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
     }
   };
 
-  const isButtonDisabled = disabled || isLoading;
-
   return (
     <motion.div
       className="mt-6"
@@ -62,16 +61,16 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
     >
       <motion.button
         className={`relative w-full py-4 rounded-xl text-white font-medium overflow-hidden ${
-          isButtonDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-[#700100]"
+          disabled || isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#700100]"
         }`}
-        whileHover={!isButtonDisabled ? { scale: 1.02 } : {}}
-        whileTap={!isButtonDisabled ? { scale: 0.98 } : {}}
-        onMouseDown={!isButtonDisabled ? startHolding : undefined}
+        whileHover={!disabled && !isLoading ? { scale: 1.02 } : {}}
+        whileTap={!disabled && !isLoading ? { scale: 0.98 } : {}}
+        onMouseDown={!disabled && !isLoading ? startHolding : undefined}
         onMouseUp={stopHolding}
         onMouseLeave={stopHolding}
-        onTouchStart={!isButtonDisabled ? startHolding : undefined}
+        onTouchStart={!disabled && !isLoading ? startHolding : undefined}
         onTouchEnd={stopHolding}
-        disabled={isButtonDisabled}
+        disabled={disabled || isLoading}
       >
         {isLoading ? (
           <div className="flex items-center justify-center">
@@ -98,7 +97,7 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
       </motion.button>
       {!disabled && (
         <p className="text-center text-sm text-gray-500 mt-2">
-          Ajouter des articles pour continuer
+          Maintenez pour confirmer
         </p>
       )}
     </motion.div>
