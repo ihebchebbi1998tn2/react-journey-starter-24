@@ -2,7 +2,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { saveCartItems, getCartItems } from '@/utils/cartStorage';
 import { getPersonalizations } from '@/utils/personalizationStorage';
 import { calculateDiscountedPrice } from '@/utils/priceCalculations';
+import { getPersonalizationPrice } from '@/utils/personalizationPricing';
 import { toast } from "@/hooks/use-toast";
+import { stockReduceManager } from '@/utils/StockReduce';
+import { clearDevCache } from '@/utils/devUtils';
 
 export interface CartItem {
   id: number;
@@ -45,6 +48,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
+    // Clear dev cache if enabled
+    clearDevCache();
+    
     const savedItems = getCartItems();
     const personalizations = getPersonalizations();
     
@@ -63,7 +69,21 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [cartItems]);
 
   const addToCart = (item: CartItem) => {
+    console.log('Adding item to cart:', item);
+    
     setCartItems(prevItems => {
+      // Check if this is a pack item
+      if (item.fromPack || item.type_product === "Pack") {
+        const packType = item.pack;
+        
+        // If adding a pack item, first verify it's not already in the cart
+        const existingPackItems = prevItems.filter(i => i.pack === packType);
+        if (existingPackItems.some(i => i.id === item.id)) {
+          console.log('Item already exists in pack, skipping...');
+          return prevItems;
+        }
+      }
+
       const existingItem = prevItems.find(i => 
         i.id === item.id && 
         i.size === item.size && 
@@ -90,9 +110,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         ? calculateDiscountedPrice(item.price, item.discount_product)
         : item.price;
 
+      const personalizationPrice = getPersonalizationPrice(
+        item.itemgroup_product || '',
+        item.personalization,
+        item.fromPack || false
+      );
+
       const itemWithPack = {
         ...item,
-        price: finalPrice,
+        price: finalPrice + personalizationPrice,
         originalPrice: item.discount_product ? item.price : undefined,
         pack: item.pack || 'aucun',
         size: item.size || '-',
@@ -106,30 +132,39 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const removeFromCart = (id: number) => {
     const itemToRemove = cartItems.find(item => item.id === id);
     
-    if (itemToRemove && itemToRemove.fromPack) {
-      const packType = itemToRemove.pack;
-      
-      // Remove all items from the same pack
+    if (itemToRemove) {
       setCartItems(prevItems => {
-        const remainingItems = prevItems.filter(item => 
-          !(item.pack === packType && item.fromPack)
-        );
+        // If the item is from a pack or is a pack itself
+        if (itemToRemove.fromPack || itemToRemove.type_product === "Pack") {
+          const packType = itemToRemove.pack;
+          
+          // Get all items from this pack (including packaging fee)
+          const packItems = prevItems.filter(item => 
+            item.pack === packType && (item.fromPack || item.type_product === "Pack")
+          );
+          
+          // Remove all items from this pack including the packaging fee
+          const remainingItems = prevItems.filter(item => 
+            !(item.pack === packType && (item.fromPack || item.type_product === "Pack"))
+          );
+          
+          toast({
+            title: "Pack supprimé",
+            description: "Le pack et tous ses articles ont été supprimés du panier. Veuillez recréer un nouveau pack complet pour continuer.",
+            style: {
+              backgroundColor: '#700100',
+              color: 'white',
+              border: '1px solid #590000',
+            },
+            duration: 5000,
+          });
+          
+          return remainingItems;
+        }
         
-        toast({
-          title: "Pack supprimé",
-          description: `Le pack ${packType} a été entièrement supprimé du panier`,
-          style: {
-            backgroundColor: '#700100',
-            color: 'white',
-            border: '1px solid #590000',
-          },
-        });
-        
-        return remainingItems;
+        // Regular item removal (non-pack items)
+        return prevItems.filter(item => item.id !== id);
       });
-    } else {
-      // Regular item removal
-      setCartItems(prevItems => prevItems.filter(item => item.id !== id));
     }
   };
 
@@ -146,6 +181,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const clearCart = () => {
     setCartItems([]);
+    stockReduceManager.clearItems();
   };
 
   const applyNewsletterDiscount = () => {
@@ -155,7 +191,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const usedDiscountEmails = JSON.parse(localStorage.getItem('usedDiscountEmails') || '[]');
     
     if (usedDiscountEmails.includes(subscribedEmail)) {
-      console.log('Email has already used the newsletter discount');
       setHasNewsletterDiscount(false);
       localStorage.removeItem('newsletterSubscribed');
       return;

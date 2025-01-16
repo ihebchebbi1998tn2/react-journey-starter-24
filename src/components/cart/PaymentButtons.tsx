@@ -16,8 +16,8 @@ interface PaymentButtonsProps {
   hasPersonalization: boolean;
 }
 
-// Set to 1 to use real payment processing
-const BYPASS_PAYMENT = 1;
+// Set to true to use real payment processing
+const BYPASS_PAYMENT = false;
 
 const PaymentButtons = ({ 
   enabled, 
@@ -53,7 +53,7 @@ const PaymentButtons = ({
     try {
       const orderId = `ORDER-${Date.now()}`;
 
-      if (BYPASS_PAYMENT === 0) {
+      if (BYPASS_PAYMENT) {
         console.log('Payment bypassed for testing - simulating successful payment');
         await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -67,7 +67,7 @@ const PaymentButtons = ({
       } else {
         console.log('Initiating real payment process with Konnect');
         const response = await initKonnectPayment({
-          amount: Math.round(finalTotal * 100) / 100, // Ensure 2 decimal places
+          amount: Math.round(finalTotal * 100) / 100,
           firstName: userDetails.firstName,
           lastName: userDetails.lastName,
           email: userDetails.email,
@@ -86,7 +86,6 @@ const PaymentButtons = ({
           payUrl: response.payUrl
         }));
 
-        // Redirect to Konnect payment page
         window.location.href = response.payUrl;
       }
     } catch (error: any) {
@@ -122,10 +121,12 @@ const PaymentButtons = ({
           className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
           <CreditCard size={20} />
-          {BYPASS_PAYMENT === 0 ? 
+          {BYPASS_PAYMENT ? 
             `Payer (Mode Test) (${finalTotal.toFixed(2)} TND)` : 
             `Payer avec carte bancaire (${finalTotal.toFixed(2)} TND)`}
         </motion.button>
+        
+      
       </div>
     </>
   );

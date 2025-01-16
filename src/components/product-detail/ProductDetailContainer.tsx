@@ -31,16 +31,17 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [selectedSize, setSelectedSize] = useState(() => {
-    // Automatically set size to 'unique' for cravatte items
-    return product.itemgroup_product === 'cravates' ? 'unique' : '';
+    // Automatically set size to 'unique' for items that don't need size selection
+    return ['cravates', 'portefeuilles'].includes(product.itemgroup_product) ? 'unique' : '';
   });
+
   const canPersonalize = canItemBePersonalized(product.itemgroup_product);
   const personalizationMessage = getPersonalizationMessage(product.itemgroup_product);
+  const needsSizeSelection = !['cravates', 'portefeuilles'].includes(product.itemgroup_product);
 
   console.log('Product itemgroup:', product.itemgroup_product);
   console.log('Can personalize:', canPersonalize);
   console.log('Personalization message:', personalizationMessage);
-  const isCravatte = product.itemgroup_product === 'cravates';
 
   const productImages = [
     product.image,
@@ -50,7 +51,7 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
   ].filter(Boolean);
 
   const handleAddToCart = (withBox?: boolean) => {
-    if (!selectedSize && !isCravatte) {
+    if (!selectedSize && needsSizeSelection) {
       toast({
         title: "Erreur",
         description: "Veuillez sélectionner une taille",
@@ -59,11 +60,13 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
       return;
     }
 
-    const availableStock = isCravatte ? product.quantity : getStockForSize(product, selectedSize);
+    const availableStock = needsSizeSelection ? getStockForSize(product, selectedSize) : product.quantity;
     if (quantity > availableStock) {
       toast({
         title: "Stock insuffisant",
-        description: `Il ne reste que ${availableStock} articles en stock pour la taille ${selectedSize}`,
+        description: needsSizeSelection 
+          ? `Il ne reste que ${availableStock} articles en stock pour la taille ${selectedSize}`
+          : `Il ne reste que ${availableStock} articles en stock`,
         variant: "destructive",
       });
       return;
@@ -136,7 +139,7 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
         <div className="h-px bg-gray-200" />
 
         <div className="space-y-6">
-        {!isCravatte && (
+          {needsSizeSelection && (
             <SizeSelector
               selectedSize={selectedSize}
               sizes={Object.entries(product.sizes)
@@ -147,6 +150,7 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
               itemGroup={product.itemgroup_product}
             />
           )}
+
           <ProductQuantitySelector
             quantity={quantity}
             setQuantity={setQuantity}

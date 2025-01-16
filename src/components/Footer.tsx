@@ -152,8 +152,12 @@ const Footer = () => {
               <li><a href="/category/outlet/femme/chemises" className="hover:underline">Outlet</a></li>
             </ul>
             <div className="mt-8">
+              <div className="mb-4">
+                <p className="text-sm mb-2">Livraison mondiale</p>
+                <img src="https://i.ibb.co/pPLzH9L/image.png" alt="World Wide Delivery" className="h-8" />
+              </div>
               <p className="text-sm mb-2">Nous acceptons</p>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <img src="https://i.ibb.co/JnwRLrJ/visa-and-mastercard-logos-logo-visa-png-logo-visa-mastercard-png-visa-logo-white-png-awesome-logos.png" alt="Mastercard" className="h-7" />
               </div>
             </div>

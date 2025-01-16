@@ -34,9 +34,9 @@ const AddItemDialog = ({
   const getAvailableSizes = (product: Product | null): string[] => {
     if (!product || !product.sizes) return [];
 
-    // For cravates, we don't need size selection
-    if (product.itemgroup_product === 'cravates') {
-      // Automatically select a default size for cravates
+    // For items that don't need size selection
+    if (['cravates', 'portefeuilles', 'porte-cles'].includes(product.itemgroup_product)) {
+      // Automatically select a default size
       if (!selectedSize) {
         onSizeSelect('unique');
       }
@@ -55,18 +55,26 @@ const AddItemDialog = ({
   const availableSizes = getAvailableSizes(droppedItem);
   const canPersonalize = droppedItem ? canItemBePersonalized(droppedItem.itemgroup_product) : false;
   const personalizationMessage = droppedItem ? getPersonalizationMessage(droppedItem.itemgroup_product) : undefined;
-  const isCravate = droppedItem?.itemgroup_product === 'cravates';
+  const needsSizeSelection = droppedItem ? !['cravates', 'portefeuilles', 'porte-cles'].includes(droppedItem.itemgroup_product) : false;
+  const isNoSizeItem = droppedItem ? ['portefeuilles', 'cravates', 'porte-cles'].includes(droppedItem.itemgroup_product) : false;
+
+  const canConfirm = () => {
+    if (isNoSizeItem) return true;
+    if (needsSizeSelection && !selectedSize) return false;
+    if (needsSizeSelection && availableSizes.length === 0) return false;
+    return true;
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-white/95">
         <DialogHeader>
           <DialogTitle className="text-xl font-serif text-[#6D0201] mb-4">
-            {isCravate ? 'Confirmer la sélection' : 'Personnalisez votre article'}
+            {needsSizeSelection ? 'Personnalisez votre article' : 'Confirmer la sélection'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          {!isCravate && availableSizes.length > 0 && (
+          {needsSizeSelection && availableSizes.length > 0 && (
             <SizeSelector
               selectedSize={selectedSize}
               sizes={availableSizes}
@@ -83,18 +91,18 @@ const AddItemDialog = ({
             />
           )}
 
-          {!isCravate && availableSizes.length === 0 && !canPersonalize && (
+          {needsSizeSelection && availableSizes.length === 0 && !isNoSizeItem && (
             <p className="text-red-500">Aucune taille disponible pour ce produit</p>
           )}
 
           <button
             onClick={onConfirm}
             className={`w-full py-4 rounded-xl text-white font-medium ${
-              (!selectedSize && !isCravate) || (!isCravate && availableSizes.length === 0)
+              !canConfirm()
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-[#6D0201] hover:bg-[#590000]'
             }`}
-            disabled={(!selectedSize && !isCravate) || (!isCravate && availableSizes.length === 0)}
+            disabled={!canConfirm()}
           >
             Confirmer
           </button>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, MapPin, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SubMenuSectionMobile from './SubMenuSectionMobile';
@@ -23,6 +23,33 @@ const MobileMenu = ({
   onStoreClick,
   onContactClick,
 }: MobileMenuProps) => {
+  // Handle touch gestures
+  const [touchStart, setTouchStart] = React.useState(0);
+  const [touchEnd, setTouchEnd] = React.useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStart - touchEnd > 100) { // Minimum swipe distance
+      onClose();
+    }
+    // Reset values
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
+  // Handle click on menu item
+  const handleItemClick = (callback: () => void) => {
+    callback();
+    onClose();
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -31,7 +58,10 @@ const MobileMenu = ({
           animate={{ x: 0 }}
           exit={{ x: "-100%" }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed top-0 left-0 h-full bg-gradient-to-br from-[#700100]/95 via-[#8B0000]/90 to-[#700100]/95 backdrop-blur-lg shadow-2xl w-[85vw] max-w-[400px] z-50 overflow-hidden"
+          className="fixed top-0 left-0 h-full bg-[#700100] w-[75vw] max-w-[360px] z-50 overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <h2 className="text-2xl font-semibold text-white tracking-wider">Menu</h2>
@@ -55,6 +85,7 @@ const MobileMenu = ({
                       { href: "/monde-fiori/collection", title: "Collection", description: "Nos collections" },
                       { href: "/monde-fiori/dna", title: "DNA", description: "Notre ADN" }
                     ]}
+                    onClick={onClose}
                   />
                 </div>
               </li>
@@ -70,6 +101,7 @@ const MobileMenu = ({
                       { href: "/univers-cadeaux/packduo", title: "Pack Duo", description: "Ensemble de deux pièces" },
                       { href: "/univers-cadeaux/packminiduo", title: "Pack Mini Duo", description: "Petit ensemble duo" }
                     ]}
+                    onClick={onClose}
                   />
                 </div>
               </li>
@@ -124,7 +156,7 @@ const MobileMenu = ({
 
               <li className="mt-6 border-t border-white/10 pt-6 space-y-4">
                 <button
-                  onClick={onStoreClick}
+                  onClick={() => handleItemClick(onStoreClick)}
                   className="w-full flex items-center gap-3 text-white hover:text-white/80 transition-colors duration-300 py-3 px-4 rounded-lg hover:bg-white/5 group"
                 >
                   <MapPin size={20} className="group-hover:scale-110 transition-transform duration-300" />
@@ -132,7 +164,7 @@ const MobileMenu = ({
                 </button>
 
                 <button
-                  onClick={onContactClick}
+                  onClick={() => handleItemClick(onContactClick)}
                   className="w-full flex items-center gap-3 text-white hover:text-white/80 transition-colors duration-300 py-3 px-4 rounded-lg hover:bg-white/5 group"
                 >
                   <Phone size={20} className="group-hover:scale-110 transition-transform duration-300" />
