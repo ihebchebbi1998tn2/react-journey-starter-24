@@ -10,7 +10,6 @@ interface ConfirmationButtonProps {
 const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) => {
   const [isHolding, setIsHolding] = useState(false);
   const [holdProgress, setHoldProgress] = useState(0);
-  const [isTempDisabled, setIsTempDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   let holdTimer: NodeJS.Timeout;
@@ -33,10 +32,16 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
     }, 20);
   };
 
-  const handleConfirmation = () => {
-    setIsLoading(true);
-    setIsTempDisabled(true);
-    onConfirm();
+  const handleConfirmation = async () => {
+    if (isLoading) return; // Prevent double submission
+    
+    setIsLoading(true); // Set loading state immediately
+    
+    try {
+      await onConfirm();
+    } catch (error) {
+      console.error('Error during confirmation:', error);
+    }
   };
 
   const stopHolding = () => {
@@ -47,7 +52,7 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
     }
   };
 
-  const isButtonDisabled = disabled || isTempDisabled || isLoading;
+  const isButtonDisabled = disabled || isLoading;
 
   return (
     <motion.div
@@ -86,7 +91,7 @@ const ConfirmationButton = ({ onConfirm, disabled }: ConfirmationButtonProps) =>
             )}
             <span className="relative flex items-center justify-center gap-2">
               <Gift className="w-5 h-5" />
-              {isButtonDisabled ? "Ajoutez des articles" : "Confirmer le pack"}
+              {disabled ? "Ajoutez des articles" : "Confirmer le pack"}
             </span>
           </>
         )}
