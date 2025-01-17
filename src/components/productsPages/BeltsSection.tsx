@@ -9,6 +9,39 @@ const BeltsSection = () => {
 
   const [type, category, itemgroup] = pathSegments;
 
+  const getImageUrl = () => {
+    if (type === 'pret-a-porter') {
+      if (category === 'homme') {
+        switch (itemgroup) {
+          case 'costumes':
+            return "/pcis/costumes.png";
+          case 'blazers':
+            return "/pcis/blazers.png";
+          case 'chemises':
+            return "/pcis/chemisehomme.png";
+          case 'pantalons':
+            return "/pcis/PantallonHomme.png";
+          case 'pollo':
+            return "/pcis/pull.png";
+          default:
+            return "/Articles/Main.png";
+        }
+      } else if (category === 'femme') {
+        switch (itemgroup) {
+          case 'chemises':
+            return "/pcis/chemisefemme.png";
+          case 'robes':
+            return "/pcis/robe.png";
+          case 'vestes':
+            return "/pcis/VestesFemme.png";
+          default:
+            return "/Articles/Main.png";
+        }
+      }
+    }
+    return "/Articles/Main.png";
+  };
+
   const getContent = () => {
     // Special handling for outlet items
     if (type === 'outlet') {
@@ -25,7 +58,7 @@ const BeltsSection = () => {
             </p>
           </div>
         ),
-        imageUrl: "/Articles/Main.png"
+        imageUrl: getImageUrl()
       };
     }
     
@@ -40,7 +73,7 @@ const BeltsSection = () => {
             Accompagnée avec son coffret cadeau, cette pièce peut être offerte en ajoutant l'option de personnalisation des initiales en dorure à chaud ou nom et prénom ou un petit mot en gravure laser.
           </p>
         ),
-        imageUrl: "/Articles/Main.png"
+        imageUrl: getImageUrl()
       };
     } else if (itemgroup === 'ceintures') {
       return {
@@ -54,14 +87,26 @@ const BeltsSection = () => {
             Cette pièce est accompagnée d'une housse personnalisée avec le nom de la marque et un coffret qui met en valeur la ceinture qui peut être offerte en lui rajoutant une personnalisation des initiales à l'extérieur ou une gravure à l'intérieur.
           </p>
         ),
-        imageUrl: "/Articles/Main.png"
+        imageUrl: getImageUrl()
       };
     }
+
+    // Default content based on current category
+    const titles: { [key: string]: string } = {
+      'chemises': 'Chemises',
+      'robes': 'Robes',
+      'vestes': 'Vestes/Manteaux',
+      'costumes': 'Costumes',
+      'blazers': 'Blazers',
+      'pantalons': 'Pantalons',
+      'pollo': 'Polo'
+    };
+
     return {
-      title: "Collection Accessoires",
-      subtitle: "-",
+      title: titles[itemgroup] || "Collection",
+      subtitle: "ÉLÉGANCE ET RAFFINEMENT",
       description: "Découvrez nos créations exclusives, façonnées avec passion et savoir-faire en Tunisie.",
-      imageUrl: "/Articles/Main.png"
+      imageUrl: getImageUrl()
     };
   };
 
