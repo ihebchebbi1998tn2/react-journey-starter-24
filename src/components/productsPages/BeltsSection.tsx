@@ -126,11 +126,13 @@ const BeltsSection = () => {
         </div>
       </div>
       <div className="w-full md:w-1/3 mt-6 md:mt-0">
-        <img
-          src={content.imageUrl}
-          alt={content.title}
-          className="rounded-md object-cover w-full h-auto max-h-[260px]"
-        />
+        <div className="relative w-full h-[260px]">
+          <img
+            src={content.imageUrl}
+            alt={content.title}
+            className="absolute inset-0 w-full h-full object-contain rounded-md"
+          />
+        </div>
       </div>
     </section>
   );
