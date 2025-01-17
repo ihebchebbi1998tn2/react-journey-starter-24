@@ -1,16 +1,15 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { CartProvider } from "./components/cart/CartProvider";
 import { usePageTracking } from "./hooks/usePageTracking";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PageLoader } from "./components/PageLoader";
 import { AnimatePresence, motion } from "framer-motion";
 
-// Lazy load pages with minimal delay
 const Index = React.lazy(() => import("./pages/Index"));
 const CategoryPage = React.lazy(() => import("./pages/CategoryPage"));
 const GiftUniversePage = React.lazy(() => import("./pages/GiftUniversePage"));
@@ -38,9 +37,21 @@ const queryClient = new QueryClient({
   },
 });
 
-// Wrapper component to implement tracking
+// Wrapper component to implement tracking and initial route check
 const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
   usePageTracking();
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisited');
+    if (!hasVisited) {
+      localStorage.setItem('hasVisited', 'true');
+      if (location.pathname === '/new') {
+        localStorage.setItem('enteredThroughNew', 'true');
+      }
+    }
+  }, [location.pathname]);
+
   return <>{children}</>;
 };
 
@@ -67,7 +78,16 @@ const App = () => (
             <TrackingWrapper>
               <AnimatePresence mode="wait">
                 <Routes>
-                  {/* Routes with optimized Suspense configuration */}
+                  {/* Add /new route before the catch-all */}
+                  <Route 
+                    path="/new" 
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <Index />
+                      </Suspense>
+                    } 
+                  />
+                  
                   <Route 
                     path="/" 
                     element={
@@ -196,7 +216,9 @@ const App = () => (
       </Suspense>
     } 
   />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                  
+                  {/* Catch-all route should be last */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </AnimatePresence>
             </TrackingWrapper>

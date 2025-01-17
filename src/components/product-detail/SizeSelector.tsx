@@ -11,13 +11,14 @@ interface SizeSelectorProps {
 
 const SizeSelector = ({ selectedSize, sizes, onSizeSelect, isCostume = false, itemGroup }: SizeSelectorProps) => {
   const getAvailableSizes = () => {
-    if (itemGroup === 'veste') {
-      return ['40', '42', '44', '46', '48', '50', '52', '54'];
-    }
-    if (isCostume) {
-      return sizes;
-    }
-    return sizes;
+    // Filter out sizes with quantity 0 or empty string
+    const filteredSizes = sizes.filter(size => {
+      // If the size is in the array, it means it has quantity > 0
+      return size && size !== '0' && size !== '';
+    });
+
+    console.log('Filtered sizes:', filteredSizes);
+    return filteredSizes;
   };
 
   const displaySize = (size: string) => {

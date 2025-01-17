@@ -1,43 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { CartItem, CartContextType } from '@/types/cart';
 import { saveCartItems, getCartItems } from '@/utils/cartStorage';
 import { getPersonalizations } from '@/utils/personalizationStorage';
-import { calculateDiscountedPrice } from '@/utils/priceCalculations';
-import { getPersonalizationPrice } from '@/utils/personalizationPricing';
 import { toast } from "@/hooks/use-toast";
 import { stockReduceManager } from '@/utils/StockReduce';
 import { clearDevCache } from '@/utils/devUtils';
-
-export interface CartItem {
-  id: number;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  quantity: number;
-  image: string;
-  size?: string;
-  color?: string;
-  personalization?: string;
-  fromPack?: boolean;
-  pack?: string;
-  withBox?: boolean;
-  discount_product?: string;
-  type_product?: string;
-  itemgroup_product?: string;
-}
-
-interface CartContextType {
-  cartItems: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  clearCart: () => void;
-  hasNewsletterDiscount: boolean;
-  applyNewsletterDiscount: () => void;
-  removeNewsletterDiscount: () => void;
-  calculateTotal: () => { subtotal: number; discount: number; total: number; boxTotal: number };
-}
-
-const BOX_PRICE = 30;
+import { calculateCartTotals } from '@/utils/cartCalculations';
+import { 
+  shouldSkipPackagingFee, 
+  shouldSkipPackItem, 
+  findExistingItem, 
+  prepareItemForCart 
+} from '@/utils/cartItemManagement';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -70,57 +44,27 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('Adding item to cart:', item);
     
     setCartItems(prevItems => {
-      if (item.fromPack || item.type_product === "Pack") {
-        const packType = item.pack;
-        const existingPackItems = prevItems.filter(i => i.pack === packType);
-        if (existingPackItems.some(i => i.id === item.id)) {
-          console.log('Item already exists in pack, skipping...');
-          return prevItems;
-        }
+      if (shouldSkipPackagingFee(prevItems, item)) {
+        console.log('Pack packaging fee already exists, skipping...');
+        return prevItems;
       }
 
-      const existingItem = prevItems.find(i => 
-        i.id === item.id && 
-        i.size === item.size && 
-        i.color === item.color && 
-        i.personalization === item.personalization &&
-        i.withBox === item.withBox &&
-        i.pack === item.pack
-      );
-      
+      if (shouldSkipPackItem(prevItems, item)) {
+        console.log('Item already exists in pack, skipping...');
+        return prevItems;
+      }
+
+      const existingItem = findExistingItem(prevItems, item);
       if (existingItem) {
         return prevItems.map(i =>
-          i.id === item.id && 
-          i.size === item.size && 
-          i.color === item.color && 
-          i.personalization === item.personalization &&
-          i.withBox === item.withBox &&
-          i.pack === item.pack
+          i === existingItem
             ? { ...i, quantity: i.quantity + item.quantity }
             : i
         );
       }
 
-      const finalPrice = item.discount_product 
-        ? calculateDiscountedPrice(item.price, item.discount_product)
-        : item.price;
-
-      const personalizationPrice = getPersonalizationPrice(
-        item.itemgroup_product || '',
-        item.personalization,
-        item.fromPack || false
-      );
-
-      const itemWithPack = {
-        ...item,
-        price: finalPrice + personalizationPrice,
-        originalPrice: item.discount_product ? item.price : undefined,
-        pack: item.pack || 'aucun',
-        size: item.size || '-',
-        personalization: item.personalization || '-'
-      };
-
-      return [...prevItems, itemWithPack];
+      const itemWithDetails = prepareItemForCart(item);
+      return [...prevItems, itemWithDetails];
     });
   };
 
@@ -129,13 +73,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (itemToRemove) {
       setCartItems(prevItems => {
-        // If the item is a pack packaging fee or from a pack
         if (itemToRemove.type_product === "Pack" || itemToRemove.fromPack) {
           const packType = itemToRemove.type_product === "Pack" 
-            ? itemToRemove.name.split(' - ')[0]  // Extract pack type from packaging fee name
+            ? itemToRemove.name.split(' - ')[0]
             : itemToRemove.pack;
           
-          // Remove all items from this pack including the packaging fee
           const remainingItems = prevItems.filter(item => {
             const isPackagingFee = item.type_product === "Pack" && 
                                  item.name.split(' - ')[0] === packType;
@@ -158,7 +100,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           return remainingItems;
         }
         
-        // Regular item removal (non-pack items)
         return prevItems.filter(item => item.id !== id);
       });
     }
@@ -205,18 +146,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const calculateTotal = () => {
-    const itemsSubtotal = cartItems.reduce((sum, item) => {
-      return sum + (item.price * item.quantity);
-    }, 0);
-    
-    const boxTotal = cartItems.reduce((sum, item) => 
-      sum + (item.withBox ? BOX_PRICE * item.quantity : 0), 0);
-    
-    const subtotal = itemsSubtotal + boxTotal;
-    const discount = hasNewsletterDiscount ? subtotal * 0.05 : 0;
-    const total = subtotal - discount;
-    
-    return { subtotal: itemsSubtotal, discount, total, boxTotal };
+    return calculateCartTotals(cartItems, hasNewsletterDiscount);
   };
 
   return (

@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { X, MapPin, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SubMenuSectionMobile from './SubMenuSectionMobile';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -23,31 +23,17 @@ const MobileMenu = ({
   onStoreClick,
   onContactClick,
 }: MobileMenuProps) => {
-  // Handle touch gestures
-  const [touchStart, setTouchStart] = React.useState(0);
-  const [touchEnd, setTouchEnd] = React.useState(0);
+  const location = useLocation();
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStart - touchEnd > 100) { // Minimum swipe distance
+  const handleLinkClick = (href: string, callback?: () => void) => {
+    console.log('MobileMenu: Link clicked:', href);
+    // Don't close the menu for /univers-cadeaux
+    if (href && href !== "#" && href !== location.pathname && href !== "/univers-cadeaux") {
+      if (callback) {
+        callback();
+      }
       onClose();
     }
-    // Reset values
-    setTouchStart(0);
-    setTouchEnd(0);
-  };
-
-  // Handle click on menu item
-  const handleItemClick = (callback: () => void) => {
-    callback();
-    onClose();
   };
 
   return (
@@ -59,9 +45,6 @@ const MobileMenu = ({
           exit={{ x: "-100%" }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className="fixed top-0 left-0 h-full bg-[#700100] w-[75vw] max-w-[360px] z-50 overflow-hidden"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
         >
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <h2 className="text-2xl font-semibold text-white tracking-wider">Menu</h2>
@@ -76,7 +59,7 @@ const MobileMenu = ({
 
           <div className="overflow-y-auto h-[calc(100vh-5rem)] hide-scrollbar">
             <ul className="p-4 space-y-2">
-              <li className="text-white/90">
+              <li className="text-white">
                 <div className="group">
                   <SubMenuSectionMobile
                     title="Le monde Fiori"
@@ -85,7 +68,7 @@ const MobileMenu = ({
                       { href: "/monde-fiori/collection", title: "Collection", description: "Nos collections" },
                       { href: "/monde-fiori/dna", title: "DNA", description: "Notre ADN" }
                     ]}
-                    onClick={onClose}
+                    onClick={(href) => handleLinkClick(href)}
                   />
                 </div>
               </li>
@@ -95,13 +78,14 @@ const MobileMenu = ({
                   <SubMenuSectionMobile
                     title="L'univers Cadeaux"
                     items={[
+                      { href: "/univers-cadeaux", title: "L'univers Cadeaux", description: "À propos" },
                       { href: "/univers-cadeaux/packprestige", title: "Pack Prestige", description: "Notre collection prestige" },
                       { href: "/univers-cadeaux/packpremuim", title: "Pack Premium", description: "Collection premium" },
                       { href: "/univers-cadeaux/packtrio", title: "Pack Trio", description: "Ensemble de trois pièces" },
                       { href: "/univers-cadeaux/packduo", title: "Pack Duo", description: "Ensemble de deux pièces" },
                       { href: "/univers-cadeaux/packminiduo", title: "Pack Mini Duo", description: "Petit ensemble duo" }
                     ]}
-                    onClick={onClose}
+                    onClick={(href) => handleLinkClick(href)}
                   />
                 </div>
               </li>
@@ -117,6 +101,7 @@ const MobileMenu = ({
                       { href: "/category/pret-a-porter/homme/pantalons", title: "Pantalon", description: "Pantalons élégants" },
                       { href: "/category/pret-a-porter/homme/pollo", title: "Polo", description: "Polos élégants" }
                     ]}
+                    onClick={(href) => handleLinkClick(href)}
                   />
                 </div>
               </li>
@@ -132,6 +117,7 @@ const MobileMenu = ({
                       { href: "/category/accessoires/homme/mallettes", title: "Mallette", description: "Mallettes professionnelles" },
                       { href: "/category/accessoires/homme/porte-cartes", title: "Porte-carte", description: "Porte-cartes élégants" }
                     ]}
+                    onClick={(href) => handleLinkClick(href)}
                   />
                 </div>
               </li>
@@ -150,13 +136,14 @@ const MobileMenu = ({
                       { href: "/category/outlet/femme/robes", title: "Robes", description: "Robes en solde" },
                       { href: "/category/outlet/femme/vestes", title: "Vestes/Manteaux", description: "Vestes et manteaux en promotion" }
                     ]}
+                    onClick={(href) => handleLinkClick(href)}
                   />
                 </div>
               </li>
 
               <li className="mt-6 border-t border-white/10 pt-6 space-y-4">
                 <button
-                  onClick={() => handleItemClick(onStoreClick)}
+                  onClick={() => handleLinkClick("#", onStoreClick)}
                   className="w-full flex items-center gap-3 text-white hover:text-white/80 transition-colors duration-300 py-3 px-4 rounded-lg hover:bg-white/5 group"
                 >
                   <MapPin size={20} className="group-hover:scale-110 transition-transform duration-300" />
@@ -164,7 +151,7 @@ const MobileMenu = ({
                 </button>
 
                 <button
-                  onClick={() => handleItemClick(onContactClick)}
+                  onClick={() => handleLinkClick("#", onContactClick)}
                   className="w-full flex items-center gap-3 text-white hover:text-white/80 transition-colors duration-300 py-3 px-4 rounded-lg hover:bg-white/5 group"
                 >
                   <Phone size={20} className="group-hover:scale-110 transition-transform duration-300" />

@@ -35,17 +35,12 @@ const ProductImageCarousel = ({ images, name }: ProductImageCarouselProps) => {
 
     setMagnifierPosition({ x, y });
 
-    // Calculate the position for the background image
-    // Using a higher zoom factor (4.5x) for better magnification
     const zoomFactor = 4.5;
-    
-    // Calculate the background position as a percentage
     const bgX = (x / rect.width) * 100;
     const bgY = (y / rect.height) * 100;
 
     const magnifier = document.querySelector('.magnifier-content') as HTMLElement;
     if (magnifier) {
-      // Center the zoom on the cursor position
       magnifier.style.backgroundPosition = `${bgX}% ${bgY}%`;
       magnifier.style.backgroundSize = `${zoomFactor * 100}%`;
     }
@@ -119,7 +114,7 @@ const ProductImageCarousel = ({ images, name }: ProductImageCarouselProps) => {
       </div>
 
       <Dialog open={isZoomed} onOpenChange={setIsZoomed}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-black/95">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-white">
           <div className="w-full h-full flex items-center justify-center p-4">
             <motion.img
               src={filteredImages[selectedImage]}
@@ -130,10 +125,10 @@ const ProductImageCarousel = ({ images, name }: ProductImageCarouselProps) => {
           </div>
 
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-2">
-            <button onClick={zoomOut} className="p-2 bg-white rounded-full">
+            <button onClick={zoomOut} className="p-2 bg-white rounded-full shadow-md">
               <ZoomOut className="w-5 h-5 text-gray-700" />
             </button>
-            <button onClick={zoomIn} className="p-2 bg-white rounded-full">
+            <button onClick={zoomIn} className="p-2 bg-white rounded-full shadow-md">
               <ZoomIn className="w-5 h-5 text-gray-700" />
             </button>
           </div>

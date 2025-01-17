@@ -40,21 +40,17 @@ export const packContent: Record<string, PackContent> = {
     title: "Le Pack Duo",
     description: "Le Pack Duo est une alliance parfaite de simplicité et d'élégance. Ce coffret contient un portefeuille en cuir de qualité supérieure et une ceinture élégante. Offrez un cadeau unique en le personnalisant avec un nom ou un message.",
     images: [
-      "/packduodescri.png",
-      "https://placehold.co/600x400/333333/ffffff?text=Belt",
-      "https://placehold.co/600x400/67000D/ffffff?text=Keychain"
+      "/packduo.png"
     ],
-    videoUrl: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+    videoUrl: ""
   },
   'Pack Mini Duo': {
     title: "Le Pack Mini Duo",
     description: "Compact et élégant, le Pack Mini Duo est un cadeau idéal. Il inclut un portefeuille en cuir raffiné et une ceinture sophistiquée. Ajoutez une gravure personnalisée pour une touche unique.",
     images: [
-      "/Packduomini2.png",
-      "https://placehold.co/600x400/333333/ffffff?text=Belt",
-      "https://placehold.co/600x400/67000D/ffffff?text=Keychain"
+      "/Packduomini2.png"
     ],
-    videoUrl: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+    videoUrl: ""
   },
   'Pack Chemise': {
     title: "Le Pack Chemise",

@@ -10,6 +10,25 @@ const BeltsSection = () => {
   const [type, category, itemgroup] = pathSegments;
 
   const getContent = () => {
+    // Special handling for outlet items
+    if (type === 'outlet') {
+      return {
+        title: "Outlet",
+        subtitle: "SOLDES ET PROMOTIONS",
+        description: (
+          <div className="space-y-4">
+            <p className="text-[#700100] font-semibold">
+              Profitez de la catégorie Outlet dont vous bénéficiez des Offres exceptionnelles
+            </p>
+            <p className="text-[#700100] font-bold text-lg">
+              Jusqu'à 70% de réduction
+            </p>
+          </div>
+        ),
+        imageUrl: "/Articles/Main.png"
+      };
+    }
+    
     if (itemgroup === 'portefeuilles') {
       return {
         title: "Portefeuilles",

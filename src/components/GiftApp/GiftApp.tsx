@@ -71,7 +71,7 @@ const GiftApp = () => {
         });
       }
 
-      // Add all items synchronously to prevent race conditions
+      // Add all items synchronously to prevent race conditionsnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
       selectedItems.forEach(item => {
         const itemToAdd = {
           ...item,
@@ -200,6 +200,8 @@ const GiftApp = () => {
             <ConfirmationButton
               onConfirm={handleConfirmPack}
               disabled={selectedItems.length === 0 || isSubmitting}
+              packType={packType}
+              selectedItemsCount={selectedItems.length}
             />
           </div>
         </div>
