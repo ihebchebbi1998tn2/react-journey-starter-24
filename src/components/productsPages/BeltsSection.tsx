@@ -14,26 +14,26 @@ const BeltsSection = () => {
       if (category === 'homme') {
         switch (itemgroup) {
           case 'costumes':
-            return "/pcis/costumes.png";
+            return "/Pcis/costumes.png";
           case 'blazers':
-            return "/pcis/blazers.png";
+            return "/Pcis/blazers.png";
           case 'chemises':
-            return "/pcis/chemisehomme.png";
+            return "/Pcis/chemisehomme.png";
           case 'pantalons':
-            return "/pcis/PantallonHomme.png";
+            return "/Pcis/PantallonHomme.png";
           case 'pollo':
-            return "/pcis/pull.png";
+            return "/Pcis/pull.png";
           default:
             return "/Articles/Main.png";
         }
       } else if (category === 'femme') {
         switch (itemgroup) {
           case 'chemises':
-            return "/pcis/chemisefemme.png";
+            return "/Pcis/chemisefemme.png";
           case 'robes':
-            return "/pcis/robe.png";
+            return "/Pcis/robe.png";
           case 'vestes':
-            return "/pcis/VestesFemme.png";
+            return "/Pcis/VestesFemme.png";
           default:
             return "/Articles/Main.png";
         }
@@ -126,11 +126,13 @@ const BeltsSection = () => {
         </div>
       </div>
       <div className="w-full md:w-1/3 mt-6 md:mt-0">
-        <img
-          src={content.imageUrl}
-          alt={content.title}
-          className="rounded-md object-cover w-full h-auto max-h-[260px]"
-        />
+        <div className="relative w-full h-[250px]">
+          <img
+            src={content.imageUrl}
+            alt={content.title}
+            className="absolute inset-0 w-full h-full object-contain rounded-md"
+          />
+        </div>
       </div>
     </section>
   );
