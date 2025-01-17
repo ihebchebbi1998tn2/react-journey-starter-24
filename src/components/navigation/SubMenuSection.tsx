@@ -7,26 +7,15 @@ interface SubMenuSectionProps {
     href: string;
     title: string;
     description: string;
-    image?: string;
   }>;
 }
 
-const ListItem = ({ href, title, image }: { href: string; title: string; image?: string }) => (
-  <li className="text-left text-black group relative">
+const ListItem = ({ href, title }: { href: string; title: string }) => (
+  <li className="text-left text-black">
     <Link 
       to={href} 
-      className="block text-sm py-1 hover:underline flex items-center gap-2"
+      className="block text-sm py-1 hover:underline"
     >
-      {image && (
-        <div className="w-8 h-8 overflow-hidden rounded opacity-0 group-hover:opacity-100 absolute left-[-2rem] transition-opacity duration-200">
-          <img 
-            src={image} 
-            alt={title} 
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
-      )}
       {title}
     </Link>
   </li>
@@ -42,7 +31,6 @@ const SubMenuSection = ({ title, items }: SubMenuSectionProps) => {
             key={`${item.href}-${index}`}
             href={item.href}
             title={item.title}
-            image={item.image}
           />
         ))}
       </ul>

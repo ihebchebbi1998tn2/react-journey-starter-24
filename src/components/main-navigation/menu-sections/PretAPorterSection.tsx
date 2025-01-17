@@ -9,33 +9,28 @@ const PretAPorterSection = () => {
         items={[
           {
             href: "/category/pret-a-porter/homme/costumes",
-            title: "Costumes",
-            description: "Costumes élégants",
-            image: "/Pcis/costumes.png"
+            title: "Costume",
+            description: "Costumes élégants"
           },
           {
             href: "/category/pret-a-porter/homme/blazers",
-            title: "Blazers",
-            description: "Blazers raffinés",
-            image: "/Pcis/blazers.png"
+            title: "Blazer",
+            description: "Blazers raffinés"
           },
           {
             href: "/category/pret-a-porter/homme/chemises",
-            title: "Chemises",
-            description: "Chemises classiques",
-            image: "/Pcis/chemisehomme.png"
+            title: "Chemise",
+            description: "Chemises classiques"
           },
           {
             href: "/category/pret-a-porter/homme/pantalons",
-            title: "Pantalons",
-            description: "Pantalons élégants",
-            image: "/Pcis/PontallonHomme.png"
+            title: "Pantalon",
+            description: "Pantalons élégants"
           },
           {
             href: "/category/pret-a-porter/homme/pollo",
-            title: "Pollo",
-            description: "Polos élégants",
-            image: "/Pcis/pull.png"
+            title: "Polo",
+            description: "Polos élégants"
           }
         ]}
       />
@@ -45,20 +40,17 @@ const PretAPorterSection = () => {
           {
             href: "/category/pret-a-porter/femme/chemises",
             title: "Chemises",
-            description: "Chemises féminines",
-            image: "/Pcis/chemisefemme.png"
+            description: "Chemises féminines"
           },
           {
             href: "/category/pret-a-porter/femme/robes",
             title: "Robes",
-            description: "Robes élégantes",
-            image: "/Pcis/robe.png"
+            description: "Robes élégantes"
           },
           {
             href: "/category/pret-a-porter/femme/vestes",
             title: "Vestes/Manteaux",
-            description: "Vestes et manteaux",
-            image: "/Pcis/VestesFemme.png"
+            description: "Vestes et manteaux"
           }
         ]}
       />
