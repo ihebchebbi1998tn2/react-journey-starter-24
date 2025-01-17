@@ -37,6 +37,14 @@ const Products = () => {
   // Filter products based on selected category
   const filteredProducts = React.useMemo(() => {
     if (!selectedCategory) return products;
+    
+    // Special handling for "vestes" category - show blazers products
+    if (selectedCategory === "vestes") {
+      return products?.filter(
+        (product) => product.itemgroup_product === "blazers"
+      );
+    }
+    
     return products?.filter(
       (product) => product.itemgroup_product === selectedCategory
     );
