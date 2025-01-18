@@ -8,14 +8,17 @@ const Hero = () => {
   const banners = [
     {
       image: 'banner.png',
+      mobileImage: 'bannerMobile.png',
       title: 'Univers cadeau'
     },
     {
       image: 'banner2.png',
+      mobileImage: 'banner2Mobile.png',
       title: 'Nouvelle collection'
     },
     {
       image: 'banner3.png',
+      mobileImage: 'banner3Mobile.png',
       title: 'Le sur mesure'
     }
   ];
@@ -24,7 +27,12 @@ const Hero = () => {
   useEffect(() => {
     const preloadBanners = async () => {
       try {
-        await preloadImages(banners.map(banner => banner.image));
+        // Preload both desktop and mobile images
+        const allImages = [
+          ...banners.map(banner => banner.image),
+          ...banners.map(banner => banner.mobileImage)
+        ];
+        await preloadImages(allImages);
         console.log('All banner images preloaded successfully');
       } catch (error) {
         console.error('Error preloading banner images:', error);
@@ -50,6 +58,33 @@ const Hero = () => {
         <motion.div
           key={currentIndex}
           className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('${banners[currentIndex].mobileImage}')`,
+            willChange: 'transform'
+          }}
+          initial={{ opacity: 0, scale: 1.1 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{
+            duration: 1.2,
+            ease: [0.43, 0.13, 0.23, 0.96]
+          }}
+          className="md:hidden"
+        >
+          <img
+            src={banners[currentIndex].mobileImage}
+            alt={banners[currentIndex].title}
+            className="w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            sizes="100vw"
+            style={{ display: 'none' }}
+          />
+        </motion.div>
+        <motion.div
+          key={`desktop-${currentIndex}`}
+          className="absolute inset-0 bg-cover bg-center hidden md:block"
           style={{
             backgroundImage: `url('${banners[currentIndex].image}')`,
             willChange: 'transform'
