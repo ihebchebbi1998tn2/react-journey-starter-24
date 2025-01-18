@@ -51,8 +51,6 @@ const ProductSelectionPanel = ({
       let filteredProducts = data;
       const categories = getAvailableCategories(packType, selectedContainerIndex, selectedItems);
       
-      console.log('Filtering with categories:', categories);
-      
       if (categories.length > 0) {
         filteredProducts = data.filter(product => {
           return categories.some(category => {
@@ -74,15 +72,19 @@ const ProductSelectionPanel = ({
           !selectedItems.some(item => item.id === product.id)
         );
 
-        if (packType === 'Pack Trio' && selectedItems.length > 0) {
-          const selectedAccessoryTypes = selectedItems
-            .filter(item => item.type_product === 'accessoires')
-            .map(item => item.itemgroup_product);
-
-          filteredProducts = filteredProducts.filter(product => 
-            product.type_product !== 'accessoires' || 
-            !selectedAccessoryTypes.includes(product.itemgroup_product)
-          );
+        // For Pack Trio, sort products in the specific order: ceintures, portefeuilles, porte-cles
+        if (packType === 'Pack Trio') {
+          const orderMap = {
+            'ceintures': 1,
+            'portefeuilles': 2,
+            'porte-cles': 3
+          };
+          
+          filteredProducts.sort((a, b) => {
+            const orderA = orderMap[a.itemgroup_product as keyof typeof orderMap] || 999;
+            const orderB = orderMap[b.itemgroup_product as keyof typeof orderMap] || 999;
+            return orderA - orderB;
+          });
         }
       }
 

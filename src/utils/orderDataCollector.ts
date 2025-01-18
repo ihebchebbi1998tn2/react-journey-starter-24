@@ -1,4 +1,4 @@
-import { CartItem } from "@/components/cart/CartProvider";
+import { CartItem } from "@/types/cart";
 import { UserDetails, getUserDetails } from "./userDetailsStorage";
 import { getCartItems } from "./cartStorage";
 import { getPersonalizations } from "./personalizationStorage";

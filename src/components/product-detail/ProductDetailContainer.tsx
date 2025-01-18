@@ -62,7 +62,7 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
     }
 
     const availableStock = requiresSizeSelection ? getStockForSize(product, selectedSize) : product.quantity;
-    if (quantity > availableStock) {
+    if (quantity > Number(availableStock)) {
       toast({
         title: "Stock insuffisant",
         description: requiresSizeSelection 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { preloadImages } from '../utils/preloadManager';
 
 const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -19,6 +20,20 @@ const Hero = () => {
     }
   ];
 
+  // Preload all banner images on component mount
+  useEffect(() => {
+    const preloadBanners = async () => {
+      try {
+        await preloadImages(banners.map(banner => banner.image));
+        console.log('All banner images preloaded successfully');
+      } catch (error) {
+        console.error('Error preloading banner images:', error);
+      }
+    };
+
+    preloadBanners();
+  }, []);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) =>
@@ -30,7 +45,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative h-[95vh] overflow-hidden"> {/* Changed from h-screen to h-[90vh] */}
+    <section className="relative h-[95vh] overflow-hidden">
       <AnimatePresence mode='wait'>
         <motion.div
           key={currentIndex}
@@ -46,7 +61,18 @@ const Hero = () => {
             duration: 1.2,
             ease: [0.43, 0.13, 0.23, 0.96]
           }}
-        />
+        >
+          <img
+            src={banners[currentIndex].image}
+            alt={banners[currentIndex].title}
+            className="w-full h-full object-cover"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            sizes="100vw"
+            style={{ display: 'none' }}
+          />
+        </motion.div>
       </AnimatePresence>
 
       <div className="absolute inset-0 bg-black/50" />

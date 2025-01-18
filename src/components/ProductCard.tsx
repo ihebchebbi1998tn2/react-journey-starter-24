@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Product } from '../types/product';
 import { calculateFinalPrice, formatPrice } from '@/utils/priceCalculations';
 import { PenLine } from 'lucide-react';
+import { preloadImage, generateSrcSet } from '@/utils/imageOptimization';
+import { useEffect } from 'react';
 
 interface ProductCardProps {
   product: Product;
@@ -10,7 +12,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const navigate = useNavigate();
-  console.log('ProductCard discount:', product.discount_product);
   
   const hasDiscount = product.discount_product !== "" && 
                      !isNaN(parseFloat(product.discount_product)) && 
@@ -22,6 +23,20 @@ const ProductCard = ({ product }: ProductCardProps) => {
     product.itemgroup_product,
     product.personalization ? true : false
   );
+
+  // Preload image when component mounts
+  useEffect(() => {
+    const preloadProductImage = async () => {
+      try {
+        await preloadImage(product.image);
+        console.log(`Product image preloaded: ${product.name}`);
+      } catch (error) {
+        console.error(`Error preloading product image: ${product.name}`, error);
+      }
+    };
+
+    preloadProductImage();
+  }, [product.image, product.name]);
 
   return (
     <div 
@@ -37,11 +52,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-contain mix-blend-normal"
+          className="w-full h-full object-contain mix-blend-normal will-change-transform"
           loading="lazy"
           decoding="async"
-          fetchPriority="low"
+          fetchPriority="high"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          srcSet={generateSrcSet(product.image)}
+          style={{
+            contentVisibility: 'auto',
+            containIntrinsicSize: '300px'
+          }}
         />
       </div>
       <div className="p-2 md:p-4">

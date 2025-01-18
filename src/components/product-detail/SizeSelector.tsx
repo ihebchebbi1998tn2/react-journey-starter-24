@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from "@/lib/utils";
+import SizeGuideModal from './SizeGuideModal';
 
 interface SizeSelectorProps {
   selectedSize: string;
@@ -10,10 +11,10 @@ interface SizeSelectorProps {
 }
 
 const SizeSelector = ({ selectedSize, sizes, onSizeSelect, isCostume = false, itemGroup }: SizeSelectorProps) => {
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
+
   const getAvailableSizes = () => {
-    // Filter out sizes with quantity 0 or empty string
     const filteredSizes = sizes.filter(size => {
-      // If the size is in the array, it means it has quantity > 0
       return size && size !== '0' && size !== '';
     });
 
@@ -33,6 +34,17 @@ const SizeSelector = ({ selectedSize, sizes, onSizeSelect, isCostume = false, it
 
   return (
     <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-900">Taille</span>
+        {itemGroup === "costumes" && (
+          <button
+            onClick={() => setShowSizeGuide(true)}
+            className="text-sm text-[#700100] hover:underline"
+          >
+            Guide des tailles
+          </button>
+        )}
+      </div>
       <div className="grid grid-cols-6 gap-1">
         {availableSizes.map((size) => (
           <button
@@ -49,6 +61,11 @@ const SizeSelector = ({ selectedSize, sizes, onSizeSelect, isCostume = false, it
           </button>
         ))}
       </div>
+
+      <SizeGuideModal 
+        isOpen={showSizeGuide}
+        onClose={() => setShowSizeGuide(false)}
+      />
     </div>
   );
 };

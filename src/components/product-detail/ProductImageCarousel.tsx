@@ -67,6 +67,8 @@ const ProductImageCarousel = ({ images, name }: ProductImageCarouselProps) => {
               className="w-full h-full object-cover"
               loading="lazy"
               decoding="async"
+              fetchPriority={index === 0 ? "high" : "low"}
+              sizes="(max-width: 768px) 100vw, 120px"
             />
             {selectedImage === index && (
               <div className="absolute inset-0 bg-black/10" />
@@ -90,6 +92,8 @@ const ProductImageCarousel = ({ images, name }: ProductImageCarouselProps) => {
             className="w-full h-full object-contain p-4"
             loading="eager"
             decoding="async"
+            fetchPriority="high"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           {showMagnifier && (
             <div 

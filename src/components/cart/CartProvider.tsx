@@ -4,7 +4,6 @@ import { saveCartItems, getCartItems } from '@/utils/cartStorage';
 import { getPersonalizations } from '@/utils/personalizationStorage';
 import { toast } from "@/hooks/use-toast";
 import { stockReduceManager } from '@/utils/StockReduce';
-import { clearDevCache } from '@/utils/devUtils';
 import { calculateCartTotals } from '@/utils/cartCalculations';
 import { 
   shouldSkipPackagingFee, 
@@ -12,6 +11,24 @@ import {
   findExistingItem, 
   prepareItemForCart 
 } from '@/utils/cartItemManagement';
+
+export interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  quantity: number;
+  image: string;
+  size?: string;
+  color?: string;
+  personalization?: string;
+  fromPack?: boolean;
+  pack?: string;
+  withBox?: boolean;
+  discount_product?: string;
+  type_product?: string;
+  itemgroup_product?: string;
+}
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -22,7 +39,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   useEffect(() => {
-    clearDevCache();
     const savedItems = getCartItems();
     const personalizations = getPersonalizations();
     

@@ -10,31 +10,31 @@ export const packContent: Record<string, PackContent> = {
     title: "Le Coffret Prestige",
     description: "Le Coffret Prestige est bien plus qu'un simple cadeau : c'est une expérience d'élégance et de raffinement. Ce coffret comprend une chemise personnalisable où vous pouvez ajouter votre nom ou un message unique, un portefeuille et une ceinture en cuir.",
     images: [
-      "https://respizenmedical.com/fiori/Prestige/1.png",
-      "https://respizenmedical.com/fiori/Prestige/2.jpg",
-      "https://respizenmedical.com/fiori/Prestige/3.jpg"
+      "/Prestige/1.png",
+      "/Prestige/2.jpg",
+      "/Prestige/3.jpg"
     ],
-    videoUrl: "https://respizenmedical.com/fiori/Prestige/video.mp4"
+    videoUrl: "/Prestige/video.mp4"
   },
   'Pack Premium': {
     title: "Le Pack Premium",
     description: "Le Pack Premium est une invitation à allier style et praticité. Ce coffret contient une cravate élégante, un portefeuille en cuir de qualité, et une ceinture assortie. Ajoutez une touche personnelle avec un nom ou un message pour rendre ce cadeau inoubliable.",
     images: [
-      "https://respizenmedical.com/fiori/Premium/1.png",
-      "https://respizenmedical.com/fiori/Premium/2.png",
-      "https://respizenmedical.com/fiori/Premium/3.png"
+      "/Premium/1.png",
+      "/Premium/2.png",
+      "/Premium/3.png"
     ],
-    videoUrl: "https://respizenmedical.com/fiori/Premium/video.mp4"
+    videoUrl: "/Premium/video.mp4"
   },
   'Pack Trio': {
     title: "Le Pack Trio",
     description: "Le Pack Trio est la combinaison idéale d'élégance et de fonctionnalité. Ce coffret contient un portefeuille en cuir haut de gamme, une ceinture sophistiquée, et un porte-clés raffiné. Personnalisez vos articles pour en faire un cadeau exceptionnel.",
     images: [
-      "https://respizenmedical.com/fiori/Trio/1.png",
-      "https://respizenmedical.com/fiori/Trio/2.png",
-      "https://respizenmedical.com/fiori/Trio/3.png"
+      "/Trio/1.png",
+      "/Trio/2.png",
+      "/Trio/3.png"
     ],
-    videoUrl: "https://respizenmedical.com/fiori/Trio/video.mp4"
+    videoUrl: "/Trio/video.mp4"
   },
   'Pack Duo': {
     title: "Le Pack Duo",

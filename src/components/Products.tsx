@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllProducts } from "../services/productsApi";
 import ProductCard from "./ProductCard";
 import Categories from "./Categories";
+import { preloadImages } from "../utils/preloadManager";
 
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -29,14 +30,40 @@ const Products = () => {
     queryKey: ["products"],
     queryFn: fetchAllProducts,
     select: (data) => {
-      // Filter out products with type_product === "outlet"
       return data.filter(product => product.type_product !== "outlet");
     }
   });
 
+  // Preload product images when data is available
+  useEffect(() => {
+    if (products) {
+      const preloadProductImages = async () => {
+        const imagesToPreload = products.map(product => product.image);
+        try {
+          await preloadImages(imagesToPreload);
+          console.log('All product images preloaded successfully');
+        } catch (error) {
+          console.error('Error preloading product images:', error);
+        }
+      };
+
+      preloadProductImages();
+    }
+  }, [products]);
+
   // Filter products based on selected category
   const filteredProducts = React.useMemo(() => {
     if (!selectedCategory) return products;
+    
+    if (selectedCategory === "vestes") {
+      return products?.filter(
+        (product) => 
+          product.type_product === "outlet" && 
+          product.itemgroup_product === "blazers" &&
+          product.category_product.toLowerCase() === "homme"
+      );
+    }
+    
     return products?.filter(
       (product) => product.itemgroup_product === selectedCategory
     );
@@ -222,4 +249,5 @@ const Products = () => {
   );
 };
 
+// Make sure to export the component as default
 export default Products;

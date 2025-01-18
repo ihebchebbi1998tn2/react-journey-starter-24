@@ -212,7 +212,7 @@ const Footer = () => {
             Fait avec ❤️ en Tunisie {isIhebChebbi() ? (
               <>par <a href="https://ihebchebbi.pro/" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline">Iheb Chebbi</a></>
             ) : (
-              <>par <a href="https://ihebchebbi.pro/" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline">Holastudio</a></>
+              <>par <a href="https://ihebchebbi.pro/" target="_blank" rel="noopener noreferrer" className="font-bold hover:underline">Iheb Chebbi</a></>
             )}
           </p>
         </div>

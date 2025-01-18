@@ -38,6 +38,21 @@ const BeltsSection = () => {
             return "/Articles/Main.png";
         }
       }
+    } else if (type === 'accessoires') {
+      switch (itemgroup) {
+        case 'porte-cartes':
+          return "/Pcis/Porte carte.png";
+        case 'cravates':
+          return "/Pcis/Tie.png";
+        case 'portefeuilles':
+          return "/Pcis/Wallet.png";
+        case 'porte-cles':
+          return "/Pcis/Keychain.png";
+        case 'mallettes':
+          return "/Pcis/malette.png";
+        default:
+          return "/Articles/Main.png";
+      }
     }
     return "/Articles/Main.png";
   };
@@ -85,6 +100,59 @@ const BeltsSection = () => {
             Cette ceinture est destinée à l'homme élégant, soucieux de détails et de qualité. Que ce soit pour compléter un costume ou pour rehausser une tenue décontractée, elle s'adapte à toutes les situations avec sophistication.
             <br /><br />
             Cette pièce est accompagnée d'une housse personnalisée avec le nom de la marque et un coffret qui met en valeur la ceinture qui peut être offerte en lui rajoutant une personnalisation des initiales à l'extérieur ou une gravure à l'intérieur.
+          </p>
+        ),
+        imageUrl: getImageUrl()
+      };
+    } else if (itemgroup === 'porte-cartes') {
+      return {
+        title: "Porte-cartes",
+        subtitle: "ÉLÉGANCE ET PRATICITÉ",
+        description: (
+          <p>
+            Le porte-cartes en cuir est un accessoire élégant et pratique, parfait pour le quotidien. Sa conception soignée allie style et fonctionnalité.
+            <br /><br />
+            Livré dans un coffret cadeau raffiné, il peut être personnalisé avec des initiales ou un message spécial.
+          </p>
+        ),
+        imageUrl: getImageUrl()
+      };
+    } else if (itemgroup === 'cravates') {
+      return {
+        title: "Cravates",
+        subtitle: "RAFFINEMENT ET STYLE",
+        description: (
+          <p>
+            Nos cravates sont confectionnées avec les plus beaux tissus pour apporter une touche d'élégance à votre tenue.
+            Chaque cravate est soigneusement sélectionnée pour sa qualité et son style distinctif.
+            <br /><br />
+            Présentée dans un coffret élégant, elle peut être personnalisée pour en faire un cadeau unique.
+          </p>
+        ),
+        imageUrl: getImageUrl()
+      };
+    } else if (itemgroup === 'porte-cles') {
+      return {
+        title: "Porte-clés",
+        subtitle: "ACCESSOIRE ESSENTIEL",
+        description: (
+          <p>
+            Nos porte-clés en cuir allient style et praticité. Chaque pièce est fabriquée avec soin pour assurer durabilité et élégance.
+            <br /><br />
+            Livré dans un emballage soigné, il peut être personnalisé pour créer un cadeau unique et mémorable.
+          </p>
+        ),
+        imageUrl: getImageUrl()
+      };
+    } else if (itemgroup === 'mallettes') {
+      return {
+        title: "Mallettes",
+        subtitle: "ÉLÉGANCE PROFESSIONNELLE",
+        description: (
+          <p>
+            Nos mallettes en cuir sont conçues pour allier style professionnel et fonctionnalité. Chaque détail est pensé pour répondre aux besoins du quotidien tout en maintenant une esthétique raffinée.
+            <br /><br />
+            Livrée dans un emballage protecteur, chaque mallette peut être personnalisée pour en faire un accessoire unique.
           </p>
         ),
         imageUrl: getImageUrl()
