@@ -43,15 +43,21 @@ const ProductItem = ({
     }
   };
 
-  // Generate optimized image URL with low quality
-  const optimizedImageUrl = `${product.image}?w=200&q=60`;
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Prevent click when dragging
+    if (!isMobile && e.type === 'click') {
+      e.preventDefault();
+      return;
+    }
+    onClick();
+  };
 
   return (
     <div
       ref={ref}
       draggable={!isMobile}
       onDragStart={handleDragStart}
-      onClick={onClick}
+      onClick={handleClick}
       className={`bg-white rounded-lg shadow-sm p-4 border border-gray-100/50 hover:shadow-md transition-all ${
         isMobile ? 'cursor-pointer active:scale-95' : 'cursor-grab active:cursor-grabbing'
       }`}
@@ -61,7 +67,7 @@ const ProductItem = ({
         <div className="relative w-full h-24 mb-2">
           {inView && (
             <img
-              src={optimizedImageUrl}
+              src={product.image}
               alt={product.name}
               className={`w-full h-full object-contain transition-opacity duration-300 ${
                 isImageLoaded ? 'opacity-100' : 'opacity-0'
@@ -119,7 +125,12 @@ const ProductGrid = ({ products, onDragStart, onProductSelect }: ProductGridProp
           product={product}
           isMobile={isMobile}
           onDragStart={onDragStart}
-          onClick={() => onProductSelect?.(product)}
+          onClick={() => {
+            console.log('Product clicked:', product);
+            if (onProductSelect) {
+              onProductSelect(product);
+            }
+          }}
         />
       ))}
     </div>
