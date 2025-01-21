@@ -18,7 +18,6 @@ const SizeSelector = ({ selectedSize, sizes, onSizeSelect, isCostume = false, it
       return size && size !== '0' && size !== '';
     });
 
-    console.log('Filtered sizes:', filteredSizes);
     return filteredSizes;
   };
 

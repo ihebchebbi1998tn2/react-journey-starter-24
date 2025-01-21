@@ -2,24 +2,36 @@ import React, { useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { Link } from 'react-router-dom';
 
+const VIDEO_URL = "https://www.fioriforyou.com/apis/videos/newcollection.mp4";
+
 const NewCollection = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.preload = "auto";
       videoRef.current.playbackRate = 1.2;
-      
+
       const playVideo = async () => {
         try {
-          await videoRef.current?.play();
+          // Play the video directly
+          if (videoRef.current) {
+            await videoRef.current.play();
+          }
         } catch (error) {
-          console.error("Video autoplay failed:", error);
+          console.error("Video playback failed:", error);
         }
       };
-      
+
       playVideo();
     }
+
+    // Cleanup function
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.src = '';
+      }
+    };
   }, []);
 
   return (
@@ -34,11 +46,10 @@ const NewCollection = () => {
               loop
               muted
               playsInline
-              preload="auto"
               className="w-full h-[345px] object-cover"
             >
               <source
-                src="https://www.fioriforyou.com/apis/videos/newcollection.mp4"
+                src={VIDEO_URL}
                 type="video/mp4"
               />
               Your browser does not support the video tag.
@@ -62,7 +73,7 @@ const NewCollection = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Two smaller images stacked on the right */}
               <div className="w-1/2 flex flex-col gap-2 h-full">
                 <div className="h-1/2 overflow-hidden">
@@ -101,11 +112,10 @@ const NewCollection = () => {
               loop
               muted
               playsInline
-              preload="auto"
               className="w-full h-full object-cover"
             >
               <source
-                src="https://www.fioriforyou.com/apis/videos/newcollection.mp4"
+                src={VIDEO_URL}
                 type="video/mp4"
               />
               Your browser does not support the video tag.

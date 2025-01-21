@@ -1,14 +1,25 @@
 import React, { useEffect, useCallback, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { useQuery } from "@tanstack/react-query";
-import { fetchAllProducts } from "../services/productsApi";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { fetchPaginatedProducts } from "../services/paginatedProductsApi";
 import ProductCard from "./ProductCard";
 import Categories from "./Categories";
-import { preloadImages } from "../utils/preloadManager";
+import { useInView } from "react-intersection-observer";
+import { preloadImage, optimizeImageUrl } from "@/utils/imageOptimization";
+
+// Explicitly define constants for product limits
+const PRODUCTS_PER_PAGE = 10;
+const INDEX_PRODUCTS_LIMIT = 10;
 
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: false,
+    rootMargin: '100px' // Increased root margin for earlier loading
+  });
+
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop: true,
@@ -26,37 +37,54 @@ const Products = () => {
     ]
   );
 
-  const { data: products, isLoading, error } = useQuery({
-    queryKey: ["products"],
-    queryFn: fetchAllProducts,
-    select: (data) => {
-      return data.filter(product => product.type_product !== "outlet");
-    }
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error
+  } = useInfiniteQuery({
+    queryKey: ['products', selectedCategory],
+    queryFn: ({ pageParam = 1 }) => fetchPaginatedProducts(
+      pageParam, 
+      PRODUCTS_PER_PAGE,
+      INDEX_PRODUCTS_LIMIT
+    ),
+    getNextPageParam: (lastPage) => 
+      lastPage.currentPage < (lastPage.totalPages || 0) ? lastPage.currentPage + 1 : undefined,
+    initialPageParam: 1,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
-  // Preload product images when data is available
+  // Preload next page images with lower quality for faster loading
   useEffect(() => {
-    if (products) {
-      const preloadProductImages = async () => {
-        const imagesToPreload = products.map(product => product.image);
-        try {
-          await preloadImages(imagesToPreload);
-          console.log('All product images preloaded successfully');
-        } catch (error) {
-          console.error('Error preloading product images:', error);
+    if (data?.pages) {
+      const nextPageProducts = data.pages[data.pages.length - 1]?.products || [];
+      nextPageProducts.forEach(product => {
+        if (product.image) {
+          // Preload thumbnail version first
+          preloadImage(product.image, 160, 'thumbnail');
+          // Then preload preview version
+          setTimeout(() => {
+            preloadImage(product.image, 400, 'preview');
+          }, 1000);
         }
-      };
-
-      preloadProductImages();
+      });
     }
-  }, [products]);
+  }, [data?.pages]);
 
-  // Filter products based on selected category
   const filteredProducts = React.useMemo(() => {
-    if (!selectedCategory) return products;
+    if (!data?.pages) return [];
+    
+    const allProducts = data.pages.flatMap(page => page.products)
+      .filter(product => product.type_product !== "outlet");
+
+    if (!selectedCategory) return allProducts;
     
     if (selectedCategory === "vestes") {
-      return products?.filter(
+      return allProducts.filter(
         (product) => 
           product.type_product === "outlet" && 
           product.itemgroup_product === "blazers" &&
@@ -64,10 +92,10 @@ const Products = () => {
       );
     }
     
-    return products?.filter(
+    return allProducts.filter(
       (product) => product.itemgroup_product === selectedCategory
     );
-  }, [products, selectedCategory]);
+  }, [data?.pages, selectedCategory]);
 
   // Navigation handlers
   const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
@@ -94,7 +122,6 @@ const Products = () => {
   useEffect(() => {
     const handleFilterCategory = (event: CustomEvent<{ category: string }>) => {
       setSelectedCategory(event.detail.category);
-      console.log('Filtering by category:', event.detail.category);
     };
 
     window.addEventListener('filterCategory', handleFilterCategory as EventListener);
@@ -103,11 +130,6 @@ const Products = () => {
     };
   }, []);
 
-  if (error) {
-    console.error("Error loading products:", error);
-    return <div className="text-center text-red-500">Failed to load products</div>;
-  }
-
   return (
     <div className="products-wrapper">
       <div className="products-container">
@@ -115,19 +137,33 @@ const Products = () => {
         <Categories />
         <div className="embla relative" ref={emblaRef}>
           <div className="embla__container">
-            {isLoading
-              ? Array.from({ length: 6 }).map((_, index) => (
-                  <div className="embla__slide" key={index}>
-                    <div className="skeleton-card"></div>
-                  </div>
-                ))
-              : filteredProducts?.map((product) => (
-                  <div className="embla__slide" key={product.id}>
-                    <ProductCard product={product} />
-                  </div>
-                ))}
+            {isLoading ? (
+              Array.from({ length: INDEX_PRODUCTS_LIMIT }).map((_, index) => (
+                <div className="embla__slide" key={index}>
+                  <div className="skeleton-card"></div>
+                </div>
+              ))
+            ) : (
+              filteredProducts.slice(0, INDEX_PRODUCTS_LIMIT).map((product) => (
+                <div className="embla__slide" key={product.id}>
+                  <ProductCard product={product} />
+                </div>
+              ))
+            )}
           </div>
+          
+          {/* Infinite scroll trigger */}
+          {!isLoading && hasNextPage && (
+            <div ref={loadMoreRef} className="h-10 w-full">
+              {isFetchingNextPage && (
+                <div className="flex justify-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#700100]"></div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
         <button
           className={`embla__button embla__button--prev ${
             !prevEnabled && "embla__button--disabled"
@@ -147,6 +183,7 @@ const Products = () => {
           <div className="arrow-content">{'>'}</div>
         </button>
       </div>
+      
       <style>
         {`
         .products-wrapper {
@@ -249,5 +286,4 @@ const Products = () => {
   );
 };
 
-// Make sure to export the component as default
 export default Products;

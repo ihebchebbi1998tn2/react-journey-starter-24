@@ -51,7 +51,6 @@ const PaymentButtons = ({
       const orderId = `ORDER-${Date.now()}`;
 
       if (BYPASS_PAYMENT) {
-        console.log('Payment bypassed for testing - simulating successful payment');
         await new Promise(resolve => setTimeout(resolve, 500)); // Reduced timeout
 
         sessionStorage.setItem('pendingOrder', JSON.stringify({

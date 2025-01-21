@@ -26,7 +26,6 @@ const MobileMenu = ({
   const location = useLocation();
 
   const handleLinkClick = (href: string, callback?: () => void) => {
-    console.log('MobileMenu: Link clicked:', href);
     if (href && href !== "#" && href !== location.pathname && href !== "/univers-cadeaux") {
       if (callback) {
         callback();

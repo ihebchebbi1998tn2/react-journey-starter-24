@@ -27,7 +27,6 @@ const PaymentSuccessPage = () => {
         }
 
         const pendingOrder = JSON.parse(pendingOrderString);
-        console.log('Processing pending order:', pendingOrder);
         
         const userDetails = getUserDetails();
         const sessionUserDetails = sessionStorage.getItem('userDetails');
@@ -60,27 +59,23 @@ const PaymentSuccessPage = () => {
         // Send stock reduce update
         try {
           await stockReduceManager.sendStockUpdate();
-          console.log('Stock reduce update completed successfully');
         } catch (error) {
           console.error('Failed to update stock reduce:', error);
           // Continue with order processing even if stock reduce fails
         }
 
-        console.log('Retrieved user details:', finalUserDetails);
         await updateProductStock(pendingOrder.cartItems);
 
         const currentPackType = sessionStorage.getItem('selectedPackType');
-        console.log('Current pack type:', currentPackType);
 
         const formattedItems = pendingOrder.cartItems.map((item: any) => {
-          console.log('Processing item:', item);
           const itemPrice = item.discount_product ? 
             item.price * (1 - parseFloat(item.discount_product) / 100) : 
             item.price;
 
           const imageUrl = item.image.startsWith('http') ? 
             item.image : 
-            `https://respizenmedical.com/fiori/${item.image}`;
+            `https://www.fioriforyou.com/backfiori/${item.image}`;
 
           const isPackCharge = item.type_product === "Pack";
           let packInfo = "aucun";
@@ -137,7 +132,6 @@ const PaymentSuccessPage = () => {
           }
         };
 
-        console.log('Submitting order data to API:', JSON.stringify(orderData, null, 2));
 
         const isTestMode = pendingOrder.payUrl === 'test-mode';
         
@@ -156,7 +150,6 @@ const PaymentSuccessPage = () => {
         }
 
         const response = await submitOrder(orderData);
-        console.log('API Response:', response);
 
         if (!response.success) {
           throw new Error(response.message || 'Failed to submit order');

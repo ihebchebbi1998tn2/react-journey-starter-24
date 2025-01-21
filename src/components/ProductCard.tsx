@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../types/product';
 import { calculateFinalPrice, formatPrice } from '@/utils/priceCalculations';
 import { PenLine } from 'lucide-react';
-import { preloadImage, generateSrcSet } from '@/utils/imageOptimization';
-import { useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +11,12 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const navigate = useNavigate();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+    rootMargin: '50px'
+  });
   
   const hasDiscount = product.discount_product !== "" && 
                      !isNaN(parseFloat(product.discount_product)) && 
@@ -24,45 +29,48 @@ const ProductCard = ({ product }: ProductCardProps) => {
     product.personalization ? true : false
   );
 
-  // Preload image when component mounts
-  useEffect(() => {
-    const preloadProductImage = async () => {
-      try {
-        await preloadImage(product.image);
-        console.log(`Product image preloaded: ${product.name}`);
-      } catch (error) {
-        console.error(`Error preloading product image: ${product.name}`, error);
-      }
-    };
-
-    preloadProductImage();
-  }, [product.image, product.name]);
+  // Generate optimized image URLs with very low initial quality
+  const thumbnailUrl = `${product.image}?w=50&q=10`;
+  const fullImageUrl = `${product.image}?w=400&q=60`;
 
   return (
     <div 
-      className="h-full hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+      ref={ref}
+      className="h-full hover:shadow-lg hover:transform hover:scale-[1.02] transition-all duration-300 cursor-pointer bg-white rounded-lg"
       onClick={() => navigate(`/product/${product.id}`)}
     >
       <div className="h-[300px] bg-transparent overflow-hidden mb-3 relative">
         {hasDiscount && parseFloat(product.discount_product) > 0 && (
-          <div className="absolute top-2 right-2 bg-[#700100] text-white px-2 py-1 rounded-full text-sm font-medium">
+          <div className="absolute top-2 right-2 bg-[#700100] text-white px-2 py-1 rounded-full text-sm font-medium z-10">
             -{product.discount_product}%
           </div>
         )}
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-contain mix-blend-normal will-change-transform"
-          loading="lazy"
-          decoding="async"
-          fetchPriority="high"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          srcSet={generateSrcSet(product.image)}
-          style={{
-            contentVisibility: 'auto',
-            containIntrinsicSize: '300px'
-          }}
-        />
+        <div className={`w-full h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          {inView && (
+            <>
+              {/* Extremely low quality placeholder */}
+              <img
+                src={thumbnailUrl}
+                alt=""
+                className="absolute inset-0 w-full h-full object-contain blur-lg scale-110"
+                style={{ opacity: imageLoaded ? 0 : 0.5 }}
+              />
+              {/* Main image - load only when in viewport */}
+              <img
+                src={fullImageUrl}
+                alt={product.name}
+                className="w-full h-full object-contain mix-blend-normal relative z-10"
+                loading="lazy"
+                decoding="async"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
+              />
+            </>
+          )}
+          {(!imageLoaded || !inView) && (
+            <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+          )}
+        </div>
       </div>
       <div className="p-2 md:p-4">
         <div className="text-base font-['WomanFontRegular'] text-[#591C1C]">

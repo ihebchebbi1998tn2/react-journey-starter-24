@@ -71,15 +71,7 @@ const ProductsSection = ({ isFromFooter = false }: ProductsSectionProps) => {
           const productType = normalizeString(product.type_product);
           const productCategory = normalizeString(product.category_product);
 
-          console.log('Filtering product:', {
-            productType,
-            productCategory,
-            normalizedType,
-            normalizedCategory,
-            itemgroup: itemgroup ? normalizeString(itemgroup) : null,
-            productItemgroup: product.itemgroup_product ? normalizeString(product.itemgroup_product) : null
-          });
-
+        
           // Special case: if we're in pret-a-porter/homme/vestes OR outlet/homme/blazers, show outlet blazers
           if ((normalizedType === 'pret a porter' && 
               normalizedCategory === 'homme' && 

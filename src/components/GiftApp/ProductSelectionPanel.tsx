@@ -72,7 +72,6 @@ const ProductSelectionPanel = ({
           !selectedItems.some(item => item.id === product.id)
         );
 
-        // For Pack Trio, sort products in the specific order: ceintures, portefeuilles, porte-cles
         if (packType === 'Pack Trio') {
           const orderMap = {
             'ceintures': 1,
@@ -93,11 +92,6 @@ const ProductSelectionPanel = ({
       );
     }
   });
-
-  const handleDragStart = (event: React.DragEvent<HTMLDivElement>, product: Product) => {
-    console.log('Drag started for product:', product.name);
-    event.dataTransfer.setData('product', JSON.stringify(product));
-  };
 
   const handleProductSelect = (product: Product) => {
     if (isMobile) {
@@ -165,7 +159,9 @@ const ProductSelectionPanel = ({
             
             <ProductGrid 
               products={products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)}
-              onDragStart={handleDragStart}
+              onDragStart={(e, product) => {
+                e.dataTransfer.setData('product', JSON.stringify(product));
+              }}
               onProductSelect={handleProductSelect}
             />
 
@@ -180,13 +176,13 @@ const ProductSelectionPanel = ({
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm text-gray-600">
-                Page {currentPage} sur {Math.ceil(products.length / itemsPerPage)}
+                Page {currentPage} sur {Math.ceil((products?.length || 0) / itemsPerPage)}
               </span>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(p => Math.min(Math.ceil(products.length / itemsPerPage), p + 1))}
-                disabled={currentPage >= Math.ceil(products.length / itemsPerPage)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil((products?.length || 0) / itemsPerPage), p + 1))}
+                disabled={currentPage >= Math.ceil((products?.length || 0) / itemsPerPage)}
                 className="bg-[#700100] hover:bg-[#590000] text-white border-none"
               >
                 <ChevronRight className="h-4 w-4" />

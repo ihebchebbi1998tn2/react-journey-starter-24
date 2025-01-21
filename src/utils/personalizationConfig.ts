@@ -38,17 +38,13 @@ export const personalizationConfig: PersonalizationConfig = {
 
 export const canItemBePersonalized = (itemGroup: string): boolean => {
   if (!itemGroup) return false;
-  console.log('Checking personalization for itemGroup:', itemGroup);
   const config = personalizationConfig[itemGroup.toLowerCase()] || personalizationConfig.default;
-  console.log('Personalization config for', itemGroup, ':', config);
   return config.canPersonalize;
 };
 
 export const getPersonalizationMessage = (itemGroup: string): string | undefined => {
   if (!itemGroup) return undefined;
-  console.log('Getting message for itemGroup:', itemGroup);
   const config = personalizationConfig[itemGroup.toLowerCase()] || personalizationConfig.default;
-  console.log('Message config for', itemGroup, ':', config.message);
   return config.message;
 };
 
@@ -56,6 +52,5 @@ export const getMaxLength = (itemGroup: string): number => {
   if (!itemGroup) return 100;
   const normalizedItemGroup = itemGroup.toLowerCase();
   const config = personalizationConfig[normalizedItemGroup] || personalizationConfig.default;
-  console.log('Getting max length for itemGroup:', itemGroup, 'Max length:', config.maxLength);
   return normalizedItemGroup === 'chemises' ? 4 : (config.maxLength || 100);
 };

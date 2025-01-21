@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CartItem, CartContextType } from '@/types/cart';
+import { CartContextType } from '@/types/cart';
 import { saveCartItems, getCartItems } from '@/utils/cartStorage';
 import { getPersonalizations } from '@/utils/personalizationStorage';
 import { toast } from "@/hooks/use-toast";
 import { stockReduceManager } from '@/utils/StockReduce';
 import { calculateCartTotals } from '@/utils/cartCalculations';
+import { cartExpirationManager } from '@/utils/cartExpiration';
 import { 
   shouldSkipPackagingFee, 
   shouldSkipPackItem, 
@@ -49,24 +50,27 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (itemsWithPersonalization.length > 0) {
       setCartItems(itemsWithPersonalization);
+      cartExpirationManager.startExpirationTimer();
     }
+
+    // Check for existing expiration timer
+    cartExpirationManager.checkExpiration();
   }, []);
 
   useEffect(() => {
     saveCartItems(cartItems);
+    if (cartItems.length > 0) {
+      cartExpirationManager.startExpirationTimer();
+    }
   }, [cartItems]);
 
   const addToCart = (item: CartItem) => {
-    console.log('Adding item to cart:', item);
-    
     setCartItems(prevItems => {
       if (shouldSkipPackagingFee(prevItems, item)) {
-        console.log('Pack packaging fee already exists, skipping...');
         return prevItems;
       }
 
       if (shouldSkipPackItem(prevItems, item)) {
-        console.log('Item already exists in pack, skipping...');
         return prevItems;
       }
 
@@ -135,6 +139,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const clearCart = () => {
     setCartItems([]);
     stockReduceManager.clearItems();
+    cartExpirationManager.clearTimers();
+    localStorage.removeItem('cartExpirationTime');
   };
 
   const applyNewsletterDiscount = () => {
