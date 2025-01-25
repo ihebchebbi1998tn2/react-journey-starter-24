@@ -15,7 +15,7 @@ interface PaymentButtonsProps {
   hasPersonalization: boolean;
 }
 
-// Set to true to use real payment processing
+// Set to true to use test payment processing
 const BYPASS_PAYMENT = false;
 
 const PaymentButtons = ({ 

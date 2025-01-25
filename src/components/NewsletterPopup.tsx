@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { useCart } from './cart/CartProvider';
 import axios from 'axios';
@@ -69,14 +69,25 @@ const NewsletterPopup = () => {
       } else {
         throw new Error(response.data.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Newsletter subscription error:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur s'est produite lors de l'inscription. Veuillez réessayer.",
-        duration: 3000,
-      });
+      const errorMessage = error.response?.data?.message || error.message;
+      
+      if (errorMessage.includes('already exists') || errorMessage.includes('Duplicate entry')) {
+        toast({
+          variant: "destructive",
+          title: "Email déjà inscrit",
+          description: "Cette adresse email est déjà inscrite à notre newsletter.",
+          duration: 3000,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erreur",
+          description: "Une erreur s'est produite lors de l'inscription. Veuillez réessayer.",
+          duration: 3000,
+        });
+      }
     } finally {
       setIsLoading(false);
     }

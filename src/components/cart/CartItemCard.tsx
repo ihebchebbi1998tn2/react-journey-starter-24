@@ -25,6 +25,18 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
   const isChemise = item.itemgroup_product === 'chemises';
   const showPersonalizationCost = hasPersonalization && isChemise && !isFromPack;
 
+  // Calculate the base price including personalization fee if applicable
+  const calculateItemPrice = () => {
+    let basePrice = item.price;
+    
+    // Add personalization fee for chemises if personalized and not from pack
+    if (showPersonalizationCost) {
+      basePrice += 30; // Add 30 TND for personalization
+    }
+    
+    return basePrice;
+  };
+
   const maxLength = isChemise ? 4 : 100;
   const remainingChars = maxLength - personalizationText.length;
 
@@ -121,15 +133,10 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
           )}
 
           {!isPackagingFee && item.personalization && item.personalization !== '-' && (
-           /*  onClick={() => setIsPersonalizationOpen(true)} */
             <div className="mb-2 bg-gray-50 p-3 rounded-lg relative group cursor-pointer" >
               <p className="text-sm text-gray-600 pr-8">
                 Personnalisation: {item.personalization}
               </p>
-             {/*  <PenLine 
-                size={16} 
-                className="absolute right-2 top-2 text-[#700100] opacity-0 group-hover:opacity-100 transition-opacity"
-              /> */}
             </div>
           )}
 
@@ -137,32 +144,35 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
             <div className="flex items-center bg-[#F1F0FB] rounded-full px-3 py-1">
               <button
                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                className="text-[#8E9196] hover:text-[#700100] transition-colors p-1"
                 aria-label="Diminuer la quantité"
+                disabled={item.quantity <= 0} // Disable when quantity is 0 or less
               >
                 <MinusCircle size={18} />
               </button>
               <span className="w-8 text-center font-medium text-[#1A1F2C] text-sm">{item.quantity}</span>
               <button
                 onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                className="text-[#8E9196] hover:text-[#700100] transition-colors p-1"
                 aria-label="Augmenter la quantité"
+                disabled={item.quantity >= 0} // Disable when quantity reaches max limit
               >
                 <PlusCircle size={18} />
               </button>
             </div>
+
             <div className="flex items-center gap-3">
               <div className="text-base sm:text-lg font-medium">
                 {hasDiscount && item.originalPrice ? (
                   <div className="flex flex-col items-end">
-                    <span className="text-[#700100]">{(item.price * item.quantity).toFixed(2)} TND</span>
+                    <span className="text-[#700100]">
+                      {(calculateItemPrice() * item.quantity).toFixed(2)} TND
+                    </span>
                     <span className="text-sm text-gray-500 line-through">
-                      {(item.originalPrice * item.quantity).toFixed(2)} TND
+                      {((item.originalPrice + (showPersonalizationCost ? 30 : 0)) * item.quantity).toFixed(2)} TND
                     </span>
                   </div>
                 ) : (
                   <span className="text-[#1A1F2C]">
-                    {(item.price * item.quantity).toFixed(2)} TND
+                    {(calculateItemPrice() * item.quantity).toFixed(2)} TND
                   </span>
                 )}
               </div>

@@ -21,6 +21,8 @@ interface PaginatedApiResponse {
     price_product: string;
     qnty_product: string;
     "3xl_size": string;
+    "4xl_size": string;
+    xs_size: string;
     s_size: string;
     m_size: string;
     l_size: string;
@@ -87,11 +89,13 @@ export const fetchPaginatedProducts = async (
           category_product: product.category_product,
           itemgroup_product: product.itemgroup_product,
           sizes: {
+            xs: parseInt(product.xs_size) || 0,
             s: parseInt(product.s_size) || 0,
             m: parseInt(product.m_size) || 0,
             l: parseInt(product.l_size) || 0,
             xl: parseInt(product.xl_size) || 0,
             xxl: parseInt(product.xxl_size) || 0,
+            "4xl": parseInt(product["4xl_size"]) || 0,
             "3xl": parseInt(product["3xl_size"]) || 0,
             "48": parseInt(product["48_size"]) || 0,
             "50": parseInt(product["50_size"]) || 0,

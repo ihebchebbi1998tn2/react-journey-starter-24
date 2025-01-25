@@ -1,5 +1,7 @@
 interface SizeQuantities {
   '3xl_size': string;
+  '4xl_size': string;
+  'xs_size': string;
   's_size': string;
   'm_size': string;
   'l_size': string;
@@ -35,7 +37,9 @@ class StockReduceManager {
 
   private getEmptySizeQuantities(): SizeQuantities {
     return {
+      '4xl_size': '0',
       '3xl_size': '0',
+      'xs_size': '0',
       's_size': '0',
       'm_size': '0',
       'l_size': '0',

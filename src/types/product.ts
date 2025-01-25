@@ -16,11 +16,13 @@ export interface Product {
   colorProduct: string;
   discount_product: string;
   sizes: {
+    xs: number;
     s: number;
     m: number;
     l: number;
     xl: number;
     xxl: number;
+    "4xl": number;
     "3xl": number;
     "48": number;
     "50": number;

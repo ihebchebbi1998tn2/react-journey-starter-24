@@ -24,7 +24,7 @@ const BrandIntro = () => {
           <div className="flex-1 bg-white text-[#591C1C] px-6 sm:px-14 py-20 flex flex-col justify-between rounded-lg shadow-lg">
             <div className="space-y-12">
               <p className="leading-loose text-xl font-['WomanFontRegular']">
-                Fiori, fondée en 2014, est une marque tunisienne qui s'intègre dans l'univers du prêt-à-porter et de la maroquinerie haut de gamme pour homme.
+                Fiori, fondée en 2014, est une marque tunisienne qui s'intègre dans l'univers du prêt-à-porter et de la maroquinerie haut de gamme.
               </p>
              
               <p className="leading-loose text-xl font-['WomanFontRegular']">

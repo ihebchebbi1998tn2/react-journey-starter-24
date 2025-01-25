@@ -21,6 +21,8 @@ interface ApiResponse {
     price_product: string;
     qnty_product: string;
     "3xl_size": string;
+    "4xl_size": string;
+    xs_size: string;
     s_size: string;
     m_size: string;
     l_size: string;
@@ -63,11 +65,13 @@ const transformProductData = (productData: ApiResponse['products'][0]): Product 
   colorProduct: productData.color_product,
   discount_product: productData.discount_product || "",
   sizes: {
+    xs: parseInt(productData.xs_size) || 0,
     s: parseInt(productData.s_size) || 0,
     m: parseInt(productData.m_size) || 0,
     l: parseInt(productData.l_size) || 0,
     xl: parseInt(productData.xl_size) || 0,
     xxl: parseInt(productData.xxl_size) || 0,
+    "4xl": parseInt(productData["4xl_size"]) || 0,
     "3xl": parseInt(productData["3xl_size"]) || 0,
     "48": parseInt(productData["48_size"]) || 0,
     "50": parseInt(productData["50_size"]) || 0,

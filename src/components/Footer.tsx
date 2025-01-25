@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useCart } from './cart/CartProvider';
 import axios from 'axios';
 import InfoModal from './modals/InfoModal';
@@ -73,11 +73,11 @@ const Footer = () => {
       console.error('Erreur d\'inscription à la newsletter:', error);
       const errorMessage = error.response?.data?.message || error.message;
       
-      if (errorMessage.includes('already exists')) {
+      if (errorMessage.includes('already exists') || errorMessage.includes('Duplicate entry')) {
         toast({
           variant: "destructive",
-          title: "Déjà inscrit",
-          description: "Vous êtes déjà inscrit à notre newsletter.",
+          title: "Email déjà inscrit",
+          description: "Cette adresse email est déjà inscrite à notre newsletter.",
           duration: 3000,
         });
       } else {
@@ -223,7 +223,7 @@ const Footer = () => {
         isOpen={showFioriModal}
         onOpenChange={setShowFioriModal}
         title="Qu'est-ce que Fiori ?"
-        content="Fiori est une marque de mode masculine tunisienne qui incarne l'élégance et le raffinement. Nous créons des vêtements et accessoires de haute qualité, alliant savoir-faire traditionnel et design contemporain. Notre mission est d'offrir à chaque homme les moyens d'exprimer sa personnalité à travers un style unique et sophistiqué."
+        content="Fiori est une marque de mode  tunisienne qui incarne l'élégance et le raffinement. Nous créons des vêtements et accessoires de haute qualité, alliant savoir-faire traditionnel et design contemporain. Notre mission est d'offrir à chaque homme les moyens d'exprimer sa personnalité à travers un style unique et sophistiqué."
       />
 
       <InfoModal

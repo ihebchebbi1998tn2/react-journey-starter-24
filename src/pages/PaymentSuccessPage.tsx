@@ -8,6 +8,7 @@ import { submitOrder } from '@/services/orderSubmissionApi';
 import { toast } from "@/hooks/use-toast";
 import { getUserDetails } from '@/utils/userDetailsStorage';
 import { stockReduceManager } from '@/utils/StockReduce';
+import { generateOrderPDF } from '@/utils/pdfGenerator';
 
 const PaymentSuccessPage = () => {
   const navigate = useNavigate();
@@ -155,10 +156,23 @@ const PaymentSuccessPage = () => {
           throw new Error(response.message || 'Failed to submit order');
         }
         
+        // Generate and download PDF
+        try {
+          const pdfDoc = await generateOrderPDF(orderData);
+          pdfDoc.save(`fiori-commande-${orderData.order_id}.pdf`);
+        } catch (pdfError) {
+          console.error('Error generating PDF:', pdfError);
+          toast({
+            title: "Note",
+            description: "Impossible de générer le PDF de la commande, mais votre commande a bien été enregistrée.",
+            variant: "default",
+          });
+        }
+        
         if (!isTestMode) {
           toast({
             title: "Commande confirmée !",
-            description: "Un email de confirmation vous a été envoyé.",
+            description: "Un email de confirmation vous a été envoyé et le récapitulatif PDF a été téléchargé.",
             style: {
               backgroundColor: '#700100',
               color: 'white',

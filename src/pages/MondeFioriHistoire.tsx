@@ -23,7 +23,7 @@ const MondeFioriHistoire = () => {
               <div className="text-lg text-gray-600 space-y-4">
                 <p>
                   Fiori, fondée en 2014, est une marque tunisienne qui s'intègre dans l'univers du prêt-à-porter 
-                  et de la maroquinerie haut de gamme pour homme.
+                  et de la maroquinerie haut de gamme.
                 </p>
                 <p>
                   En suivant les normes de production les plus poussées, nos pièces uniques sont travaillées à partir 

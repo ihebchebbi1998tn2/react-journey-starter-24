@@ -12,7 +12,24 @@ import {
   findExistingItem, 
   prepareItemForCart 
 } from '@/utils/cartItemManagement';
-import { CartItem } from '@/types/cart';
+
+export interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  quantity: number;
+  image: string;
+  size?: string;
+  color?: string;
+  personalization?: string;
+  fromPack?: boolean;
+  pack?: string;
+  withBox?: boolean;
+  discount_product?: string;
+  type_product?: string;
+  itemgroup_product?: string;
+}
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -48,7 +65,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [cartItems]);
 
   const addToCart = (item: CartItem) => {
-    console.log('Adding to cart:', item); // Debug log
     setCartItems(prevItems => {
       if (shouldSkipPackagingFee(prevItems, item)) {
         return prevItems;
@@ -69,16 +85,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
       const itemWithDetails = prepareItemForCart(item);
       return [...prevItems, itemWithDetails];
-    });
-
-    toast({
-      title: "Produit ajouté",
-      description: `${item.name} a été ajouté au panier`,
-      style: {
-        backgroundColor: '#700100',
-        color: 'white',
-        border: '1px solid #590000',
-      },
     });
   };
 
