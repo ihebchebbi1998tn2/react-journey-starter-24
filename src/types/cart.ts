@@ -19,11 +19,10 @@ export interface CartItem {
 export interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeFromCart: (itemId: number) => void;
+  updateQuantity: (itemId: number, quantity: number) => void;
   clearCart: () => void;
-  hasNewsletterDiscount: boolean;
-  applyNewsletterDiscount: () => void;
-  removeNewsletterDiscount: () => void;
-  calculateTotal: () => { subtotal: number; discount: number; total: number; boxTotal: number };
+  getCartTotal: () => number;
+  getItemCount: () => number;
+  getPackagingFee: () => number;
 }

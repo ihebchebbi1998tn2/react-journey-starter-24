@@ -36,6 +36,11 @@ const ProductAccessoiresSection = () => {
             href: "/category/accessoires/homme/porte-cles",
             title: "Porte-clé",
             description: "Porte-clés élégants"
+          },
+          {
+            href: "/category/accessoires/homme/porte-passport",
+            title: "Porte Passport",
+            description: "Porte-passports élégants"
           }
         ]}
       />

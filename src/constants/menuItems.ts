@@ -49,6 +49,7 @@ export const menuItems = [
       { href: "/category/accessoires/homme/mallettes", title: "Mallette" },
       { href: "/category/accessoires/homme/porte-cartes", title: "Porte-cartes" },
       { href: "/category/accessoires/homme/porte-cles", title: "Porte-clés" },
+      { href: "/category/accessoires/homme/porte-passport", title: "Porte Passport" },
       { href: "/category/accessoires/femmes/sacs-a-main", title: "Sacs à main" },
     ],
   },
